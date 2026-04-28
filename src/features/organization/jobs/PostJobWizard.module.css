@@ -1,0 +1,158 @@
+.wizardContainer {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.wizardHeader {
+  padding: 32px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.stepper {
+  display: flex;
+  padding: 24px 32px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  margin-right: 48px;
+  position: relative;
+}
+
+.step:last-child {
+  margin-right: 0;
+}
+
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 8px);
+  width: 32px;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.stepNumber {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  margin-right: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.stepLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.activeStep .stepNumber {
+  background: #009688;
+  color: #ffffff;
+  border-color: #009688;
+}
+
+.activeStep .stepLabel {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.completedStep .stepNumber {
+  background: #e0f2f1;
+  color: #009688;
+  border-color: #b2dfdb;
+}
+
+.stepContent {
+  padding: 32px;
+}
+
+.footer {
+  padding: 24px 32px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.fullWidth {
+  grid-column: span 2;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.input, .select, .textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 15px;
+  color: #1e293b;
+  background: #ffffff;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: #009688;
+  box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.1);
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.errorText {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+}

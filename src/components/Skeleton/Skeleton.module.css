@@ -1,0 +1,768 @@
+/* Base shimmer block — shared across all skeleton UIs */
+.block {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--border-light);
+  vertical-align: middle;
+}
+
+.block::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.blockDark {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.blockDark::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0)
+  );
+}
+
+/* ——— Organization details page ——— */
+.pageOrgDetails {
+  /* Layout handled by parent */
+}
+
+.orgTopNav {
+  margin-bottom: 24px;
+}
+
+.orgBackBtn {
+  width: 140px;
+  height: 32px;
+}
+
+.orgProfileHeader {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.orgHeaderInfo {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.orgIcon {
+  width: 68px;
+  height: 68px;
+  border-radius: var(--radius);
+}
+
+.orgTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.orgTitle {
+  width: 240px;
+  height: 24px;
+}
+
+.orgMeta {
+  width: 300px;
+  height: 14px;
+}
+
+.orgActionGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.orgBtn {
+  width: 120px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+}
+
+.orgGrid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+}
+
+.orgMain {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.orgSide {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.orgCard {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.orgCardDark {
+  background: var(--navy);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.orgCardHeader {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.orgCardDark .orgCardHeader {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.orgCardIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.orgCardTitle {
+  width: 140px;
+  height: 14px;
+}
+
+.orgCardBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.orgLineLg {
+  width: 100%;
+  height: 14px;
+}
+
+.orgLineMd {
+  width: 70%;
+  height: 12px;
+}
+
+.orgLineSm {
+  width: 45%;
+  height: 12px;
+}
+
+.orgTagRow {
+  display: flex;
+  gap: 10px;
+}
+
+.orgTag {
+  width: 120px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+}
+
+/* ——— Organization list (management) ——— */
+.listGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.listCard {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.listTopBar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.listTime {
+  width: 140px;
+  height: 12px;
+}
+
+.listSave {
+  width: 80px;
+  height: 12px;
+}
+
+.listTitle {
+  width: 300px;
+  height: 24px;
+  margin-bottom: 12px;
+}
+
+.listMetaRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.listMetaPill {
+  width: 100px;
+  height: 14px;
+}
+
+.listTags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.listTag {
+  width: 90px;
+  height: 24px;
+  border-radius: 20px;
+}
+
+.listBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.listStats {
+  display: flex;
+  gap: 24px;
+}
+
+.listStatBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.listStatLabel {
+  width: 60px;
+  height: 10px;
+}
+
+.listStatValue {
+  width: 80px;
+  height: 14px;
+}
+
+.listActions {
+  display: flex;
+  gap: 10px;
+}
+
+.listActionBtn {
+  width: 100px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+}
+
+/* ——— Admin dashboard ——— */
+.dashHeader {
+  margin-bottom: 24px;
+}
+
+.dashTitle {
+  width: 280px;
+  height: 32px;
+  margin-bottom: 6px;
+}
+
+.dashSubtitle {
+  width: 320px;
+  height: 14px;
+}
+
+.dashStatsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashStatCard {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dashStatIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.dashStatText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dashStatValue {
+  width: 60px;
+  height: 24px;
+}
+
+.dashStatLabel {
+  width: 100px;
+  height: 12px;
+}
+
+.dashLayout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+}
+
+.dashWidget {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.dashWidgetTitle {
+  width: 140px;
+  height: 14px;
+  margin-bottom: 16px;
+}
+
+.dashActionRow {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+
+.dashActivityRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dashActivityAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.dashActivityLines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dashActivityLine1 {
+  width: 70%;
+  height: 12px;
+}
+
+.dashActivityLine2 {
+  width: 40%;
+  height: 10px;
+}
+
+.dashFeedCard {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.dashFeedName {
+  width: 240px;
+  height: 20px;
+  margin-bottom: 12px;
+}
+
+/* Modals */
+.modalFields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modalLabel {
+  width: 100px;
+  height: 12px;
+}
+
+.modalInput {
+  width: 100%;
+  height: 40px;
+  border-radius: var(--radius-sm);
+}
+
+/* Auth / Overlay */
+.formOverlay {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.prNavLineShort {
+  width: 70%;
+  height: 12px;
+  border-radius: 6px;
+}
+
+.prMainCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.prTopBar {
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+}
+
+.prCrumb {
+  flex: 1;
+  height: 14px;
+  max-width: 280px;
+  border-radius: 6px;
+}
+
+.prBell {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.prContent {
+  padding: 24px;
+  flex: 1;
+}
+
+.prGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.prCard {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prCardTitle {
+  width: 55%;
+  height: 12px;
+  border-radius: 6px;
+}
+
+.prCardLine {
+  width: 100%;
+  height: 10px;
+  border-radius: 6px;
+}
+
+.prCardLineSm {
+  width: 72%;
+  height: 10px;
+  border-radius: 6px;
+}
+
+/* ——— Responsive ——— */
+@media (max-width: 1100px) {
+  .orgGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .orgSide {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .dashLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .orgTopNav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .orgBreadcrumb {
+    width: 240px;
+  }
+
+  .orgProfileHeader {
+    padding: 22px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .orgActionGroup {
+    width: 100%;
+  }
+
+  .orgBtn {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashStatsRow {
+    flex-direction: column;
+  }
+
+  .dashStatCard {
+    min-width: 100%;
+  }
+
+  .listBottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .listActions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .listActionBtn,
+  .listActionBtnPrimary {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .orgProfileHeader {
+    padding: 16px;
+  }
+
+  .orgHeaderInfo {
+    gap: 12px;
+  }
+
+  .orgIcon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .orgTitle {
+    width: 190px;
+    max-width: 62vw;
+  }
+
+  .orgMeta {
+    width: 210px;
+    max-width: 74vw;
+  }
+
+  .orgActionGroup {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .orgBtn {
+    width: 100%;
+    min-width: 0;
+    height: 36px;
+  }
+
+  .orgCardHeader {
+    padding: 12px 16px;
+  }
+
+  .orgCardBody {
+    padding: 14px 16px;
+  }
+
+  .orgSide {
+    grid-template-columns: 1fr;
+  }
+
+  .obCard {
+    padding: 28px 20px;
+  }
+
+  .listBody {
+    padding: 16px 18px 20px;
+  }
+
+  .listTitle {
+    width: 80%;
+  }
+}
+
+/* ——— Settings page ——— */
+.pageSettings {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.settingsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.settingsTitle {
+  width: min(280px, 55vw);
+  height: 28px;
+}
+
+.settingsSaveBtn {
+  width: 150px;
+  height: 44px;
+  border-radius: 10px;
+}
+
+.settingsTabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.settingsTab {
+  width: 150px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.settingsTabWide {
+  width: 120px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.settingsProfileWrap {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .settingsProfileWrap {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settingsCard {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  grid-column: 1 / -1;
+  max-width: 100%;
+}
+
+.settingsCardHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settingsCardIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.settingsCardTitle {
+  width: 160px;
+  height: 16px;
+}
+
+.settingsFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .settingsFields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settingsFieldRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settingsLabel {
+  width: 100px;
+  height: 12px;
+}
+
+.settingsInput {
+  width: 100%;
+  height: 40px;
+  border-radius: 10px;
+}

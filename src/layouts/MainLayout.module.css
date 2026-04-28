@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-light);
+}
+
+.header {
+  padding: 20px 40px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.brand {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 1.25rem;
+}
+
+.main {
+  flex: 1;
+  padding: 40px;
+}
+
+.footer {
+  padding: 20px 40px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 16px;
+  }
+
+  .main {
+    padding: 20px 16px;
+  }
+
+  .footer {
+    padding: 16px;
+  }
+}

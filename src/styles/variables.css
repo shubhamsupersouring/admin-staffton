@@ -1,0 +1,47 @@
+:root {
+  /* Colors from template */
+  --navy: #0D1B2A;
+  --navy-light: #162336;
+  --teal: #0FB8A4;
+  --teal-dark: #0a9e8c;
+  --teal-soft: #e8faf8;
+  --teal-border: #b2ede8;
+  --bg: #F2F5F9;
+  --white: #ffffff;
+  --text: #1a2b3c;
+  --text-muted: #6b7e92;
+  --text-light: #9aacbe;
+  --border: #e4eaf0;
+  --border-light: #edf2f7;
+  
+  /* Status Colors */
+  --pending: #F59E0B;
+  --pending-bg: #FFFBEB;
+  --active: #10B981;
+  --active-bg: #ECFDF5;
+  --suspended: #EF4444;
+  --suspended-bg: #FEF2F2;
+  --rejected: #8B5CF6;
+  --rejected-bg: #F5F3FF;
+  --precreated: #3B82F6;
+  --precreated-bg: #EFF6FF;
+  --expired: #9CA3AF;
+  --expired-bg: #F9FAFB;
+  --deleted: #6B7280;
+  
+  /* Row Highlight */
+  --row-yellow: #FFFBEB;
+  --row-orange: #FFF7ED;
+  
+  /* Shadows & Radius */
+  --shadow-sm: 0 1px 3px rgba(13,27,42,0.08);
+  --shadow-md: 0 4px 16px rgba(13,27,42,0.10);
+  --shadow-lg: 0 8px 32px rgba(13,27,42,0.14);
+  --radius: 10px;
+  --radius-sm: 6px;
+  
+  /* Layout */
+  --sidebar-w: 240px;
+  --header-h: 60px;
+}
+

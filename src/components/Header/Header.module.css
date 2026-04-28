@@ -1,0 +1,146 @@
+.header {
+  height: var(--header-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menuBtn {
+  display: none;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.crumb {
+  color: var(--text-muted);
+}
+
+.activeCrumb {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.separator {
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.iconActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.iconBtn:hover {
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+@media (max-width: 1024px) {
+  .header {
+    padding: 0 16px;
+  }
+
+  .menuBtn {
+    display: inline-flex;
+  }
+
+  .breadcrumbs {
+    gap: 4px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 0 12px;
+  }
+
+  .breadcrumbs {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* Hide intermediate breadcrumbs on very small screens to save space for Title */
+  .breadcrumbs span:not(:last-child) {
+    display: none;
+  }
+
+  .separator {
+    display: none;
+  }
+
+  .activeCrumb {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  .iconActions {
+    gap: 4px;
+  }
+
+  .iconBtn {
+    width: 32px;
+    height: 32px;
+  }
+}
