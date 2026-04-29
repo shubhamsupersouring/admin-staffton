@@ -245,7 +245,7 @@ const OrganizationManagement = () => {
                 <div className={styles.cardTopBar}>
                   <div className={styles.timeLabel}>
                     <Timer size={14} />
-                    <span>{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
+                    <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
                   </div>
                   <button className={styles.saveBtn} onClick={(e) => e.stopPropagation()}>
                     <Heart size={18} />
@@ -254,19 +254,19 @@ const OrganizationManagement = () => {
                 </div>
 
                 <div className={styles.cardMainContent}>
-                  <h3 className={styles.orgNameTitle}>
+                  <h3 className={`${styles.orgNameTitle} whitespace-pre-wrap break-all`}>
                     {activeTab === 'invitations' ? item.org_name : item.name}
                   </h3>
 
                   <div className={styles.metaRow}>
                     <div className={styles.metaItem}>
                       <MapPin size={16} />
-                      <span>{activeTab === 'invitations' ? 'Medical Partner' : (item.city || 'Location Pending')}</span>
+                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Medical Partner' : (item.city || 'Location Pending')}</span>
                     </div>
                     <div className={styles.metaDivider}></div>
                     <div className={styles.metaItem}>
                       <Building size={16} />
-                      <span>{activeTab === 'invitations' ? 'Facility' : (item.org_type || 'Hospital')}</span>
+                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Facility' : (item.org_type || 'Hospital')}</span>
                     </div>
                     {(activeTab === 'registry' && item.verification_status === 'approved') && (
                       <div className={styles.verifiedBadge}>
@@ -279,14 +279,14 @@ const OrganizationManagement = () => {
                   <div className={styles.tagCloud}>
                     {activeTab === 'registry' ? (
                       <>
-                        <span className={styles.tag}>{item.org_type || 'Facility'}</span>
-                        <span className={styles.tag}>{item.city || 'Remote'}</span>
-                        <span className={styles.tag}>{item.state || 'India'}</span>
+                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.org_type || 'Facility'}</span>
+                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.city || 'Remote'}</span>
+                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.state || 'India'}</span>
                       </>
                     ) : (
                       <>
-                        <span className={styles.tag}>Pending Invite</span>
-                        <span className={styles.tag}>{item.contact_email}</span>
+                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>Pending Invite</span>
+                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.contact_email}</span>
                       </>
                     )}
                   </div>
@@ -295,12 +295,12 @@ const OrganizationManagement = () => {
                     <div className={styles.statsGroup}>
                       <div className={styles.statBox}>
                         <span className={styles.statLabel}>Organization Type</span>
-                        <span className={styles.statValue}>{activeTab === 'invitations' ? 'Medical Partner' : (item.org_type || 'Hospital')}</span>
+                        <span className={`${styles.statValue} whitespace-pre-wrap break-all`}>{activeTab === 'invitations' ? 'Medical Partner' : (item.org_type || 'Hospital')}</span>
                       </div>
                       <div className={styles.statDivider}></div>
                       <div className={styles.statBox}>
                         <span className={styles.statLabel}>Current Status</span>
-                        <span className={styles.statValue} style={{
+                        <span className={`${styles.statValue} whitespace-pre-wrap break-all`} style={{
                           color: (item.verification_status === 'approved' || item.status === 'accepted') ? '#0d9488' : '#d97706'
                         }}>
                           {activeTab === 'invitations' ? item.status : item.verification_status}
@@ -416,7 +416,7 @@ const OrganizationManagement = () => {
               <label>Organization</label>
               <div className={styles.inputWrapper}>
                 <Building size={18} className={styles.inputIcon} />
-                <input value={selectedInvitation.org_name || '-'} readOnly />
+                <input className="whitespace-pre-wrap break-all" value={selectedInvitation.org_name || '-'} readOnly />
               </div>
             </div>
 
@@ -424,7 +424,7 @@ const OrganizationManagement = () => {
               <label>Contact Person</label>
               <div className={styles.inputWrapper}>
                 <User size={18} className={styles.inputIcon} />
-                <input value={selectedInvitation.contact_name || '-'} readOnly />
+                <input className="whitespace-pre-wrap break-all" value={selectedInvitation.contact_name || '-'} readOnly />
               </div>
             </div>
 
@@ -432,7 +432,7 @@ const OrganizationManagement = () => {
               <label>Contact Email</label>
               <div className={styles.inputWrapper}>
                 <Mail size={18} className={styles.inputIcon} />
-                <input value={selectedInvitation.contact_email || '-'} readOnly />
+                <input className="whitespace-pre-wrap break-all" value={selectedInvitation.contact_email || '-'} readOnly />
               </div>
             </div>
 
@@ -440,7 +440,7 @@ const OrganizationManagement = () => {
               <label>Invite Status</label>
               <div className={styles.inputWrapper}>
                 <Shield size={18} className={styles.inputIcon} />
-                <input value={selectedInvitation.status || '-'} readOnly />
+                <input className="whitespace-pre-wrap break-all" value={selectedInvitation.status || '-'} readOnly />
               </div>
             </div>
 
@@ -449,6 +449,7 @@ const OrganizationManagement = () => {
               <div className={styles.inputWrapper}>
                 <Calendar size={18} className={styles.inputIcon} />
                 <input
+                  className="whitespace-pre-wrap break-all"
                   value={selectedInvitation.expires_at ? new Date(selectedInvitation.expires_at).toLocaleString() : '-'}
                   readOnly
                 />

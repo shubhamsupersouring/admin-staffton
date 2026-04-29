@@ -357,6 +357,15 @@
   color: var(--text-muted);
 }
 
+/* Keep long job details readable inside cards */
+.jobNameTitle,
+.metaItem span,
+.tag,
+.statBoxValue {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 .cardBottomRow {
   display: flex;
   align-items: center;

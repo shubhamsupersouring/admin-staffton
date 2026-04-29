@@ -285,7 +285,7 @@ const AdminDashboard = () => {
                     {org.name.charAt(0).toUpperCase()}
                   </div>
                   <div className={styles.verifInfo}>
-                    <div className={styles.verifName}>{org.name}</div>
+                    <div className={`${styles.verifName} whitespace-pre-wrap break-all`}>{org.name}</div>
                     <div className={styles.verifMeta}>
                       <span className={styles.metaLabel}>
                         <MapPin size={13} /> {org.city || 'Location Pending'}
@@ -339,6 +339,7 @@ const AdminDashboard = () => {
               type="text" 
               placeholder="e.g. Apollo Hospitals" 
               required 
+              maxLength={80}
               value={formData.org_name}
               onChange={(e) => setFormData({...formData, org_name: e.target.value})}
             />
@@ -349,6 +350,7 @@ const AdminDashboard = () => {
               type="text" 
               placeholder="e.g. John Smith" 
               required 
+              maxLength={80}
               value={formData.contact_name}
               onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
             />
@@ -359,6 +361,7 @@ const AdminDashboard = () => {
               type="email" 
               placeholder="e.g. admin@apollo.com" 
               required 
+              maxLength={80}
               value={formData.contact_email}
               onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
             />
