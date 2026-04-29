@@ -11,6 +11,7 @@ import EntityManagement from '../pages/EntityManagement';
 import JobsManagement from '../pages/JobsManagement';
 import JobDetails from '../pages/JobDetails';
 import UserManagement from '../pages/UserManagement';
+import CandidateManagement from '../pages/CandidateManagement';
 import NotFound from '../pages/NotFound';
 
 // Organization Jobs
@@ -36,6 +37,7 @@ export const routes = [
       { path: 'jobs', element: <JobsManagement /> },
       { path: 'jobs/:id', element: <JobDetails /> },
       { path: 'users', element: <UserManagement /> },
+      { path: 'candidates', element: <CandidateManagement /> },
       { path: 'admins', element: <Navigate to="/settings" replace /> },
       { path: '*', element: <NotFound /> },
     ],

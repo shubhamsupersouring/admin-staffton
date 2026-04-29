@@ -78,6 +78,11 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
         icon: <Users size={18} />,
         path: '/users',
       },
+      {
+        name: 'Candidates',
+        icon: <Users size={18} />,
+        path: '/candidates',
+      },
     ],
     [organizationsCount]
   );
