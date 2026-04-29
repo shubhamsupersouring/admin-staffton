@@ -28,6 +28,7 @@ import {
   OrganizationListSkeleton,
   ModalFieldsSkeleton
 } from '../components/Skeleton';
+import Pagination from '../components/Pagination/Pagination';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -266,16 +267,12 @@ const OrganizationManagement = () => {
                   className={styles.listCard}
                   onClick={() => activeTab === 'registry' && navigate(`/organizations/${item.id}`)}
                 >
-                  <div className={styles.cardTopBar}>
-                    <div className={styles.timeLabel}>
-                      <Timer size={14} />
-                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
+                    <div className={styles.cardTopBar}>
+                      <div className={styles.timeLabel}>
+                        <Timer size={14} />
+                        <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
+                      </div>
                     </div>
-                    <button className={styles.saveBtn} onClick={(e) => e.stopPropagation()}>
-                      <Heart size={18} />
-                      <span>Save</span>
-                    </button>
-                  </div>
 
                   <div className={styles.cardMainContent}>
                     <h3 className={`${styles.orgNameTitle} whitespace-pre-wrap break-all`}>
@@ -361,35 +358,11 @@ const OrganizationManagement = () => {
                 </div>
               ))}
 
-              {totalPages > 1 && (
-                <div className={styles.pagination}>
-                  <button 
-                    className={styles.pageBtn} 
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(p => p - 1)}
-                  >
-                    <ChevronLeft size={16} /> Previous
-                  </button>
-                  <div className={styles.pageNumbers}>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                      <button
-                        key={page}
-                        className={`${styles.pageNum} ${currentPage === page ? styles.activePageNum : ''}`}
-                        onClick={() => setCurrentPage(page)}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
-                  <button 
-                    className={styles.pageBtn} 
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(p => p + 1)}
-                  >
-                    Next <ChevronRight size={16} />
-                  </button>
-                </div>
-              )}
+              <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </>
           )}
         </div>

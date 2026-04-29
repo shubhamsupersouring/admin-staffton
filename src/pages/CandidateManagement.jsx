@@ -16,6 +16,7 @@ import styles from './CandidateManagement.module.css';
 import apiClient from '../services/apiClient';
 import toast from 'react-hot-toast';
 import { OrganizationListSkeleton } from '../components/Skeleton';
+import Pagination from '../components/Pagination/Pagination';
 
 const CandidateManagement = () => {
   const [candidates, setCandidates] = useState([]);
@@ -42,6 +43,7 @@ const CandidateManagement = () => {
       ]);
       
       setStats(statsRes.data.data);
+      console.log('Candidate List Res:', listRes.data);
       setCandidates(listRes.data.data.candidates || []);
       setPagination({
         total: listRes.data.data.total,
@@ -189,42 +191,11 @@ const CandidateManagement = () => {
         </table>
 
         {/* Pagination Section */}
-        {pagination.totalPages > 1 && (
-          <div className={styles.pagination}>
-            <div className={styles.pageInfo}>
-              Showing page {pagination.page} of {pagination.totalPages}
-            </div>
-            <div className={styles.pageActions}>
-              <button 
-                className={styles.pageBtn} 
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(p => p - 1)}
-              >
-                <ChevronLeft size={16} /> Previous
-              </button>
-              
-              <div className={styles.pageNumbers}>
-                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
-                  <button
-                    key={page}
-                    className={`${styles.pageNum} ${currentPage === page ? styles.activePageNum : ''}`}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
-
-              <button 
-                className={styles.pageBtn} 
-                disabled={currentPage === pagination.totalPages}
-                onClick={() => setCurrentPage(p => p + 1)}
-              >
-                Next <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

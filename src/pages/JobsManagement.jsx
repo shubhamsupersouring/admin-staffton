@@ -21,6 +21,7 @@ import styles from './JobsManagement.module.css';
 import apiClient from '../services/apiClient';
 import Modal from '../components/Modal/Modal';
 import { AdminDashboardSkeleton } from '../components/Skeleton';
+import Pagination from '../components/Pagination/Pagination';
 
 const JobCard = ({ job, onViewDetails }) => {
   const displayValue = (val) => {
@@ -392,35 +393,11 @@ const JobsManagement = () => {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className={styles.pagination}>
-            <button 
-              className={styles.pageBtn} 
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
-            >
-              <ChevronLeft size={16} /> Previous
-            </button>
-            <div className={styles.pageNumbers}>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  className={`${styles.pageNum} ${currentPage === page ? styles.activePageNum : ''}`}
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
-            <button 
-              className={styles.pageBtn} 
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
-            >
-              Next <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       <FilterModal 

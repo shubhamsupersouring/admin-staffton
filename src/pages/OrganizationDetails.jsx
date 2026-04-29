@@ -193,13 +193,15 @@ const OrganizationDetails = () => {
           </div>
         </div>
         <div className={styles.headerActions}>
-          <button 
-            className={styles.rejectBtn} 
-            disabled={updating || organisation.verification_status === 'rejected'}
-            onClick={() => setConfirmModal({ isOpen: true, type: 'rejected', reason: '' })}
-          >
-            <ShieldAlert size={18} /> Reject
-          </button>
+          {organisation.verification_status !== 'approved' && (
+            <button 
+              className={styles.rejectBtn} 
+              disabled={updating || organisation.verification_status === 'rejected'}
+              onClick={() => setConfirmModal({ isOpen: true, type: 'rejected', reason: '' })}
+            >
+              <ShieldAlert size={18} /> Reject
+            </button>
+          )}
           <button 
             className={styles.approveBtn} 
             disabled={updating || organisation.verification_status === 'approved' || !onboarding?.isOnboardingComplete}
