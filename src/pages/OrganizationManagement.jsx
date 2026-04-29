@@ -13,7 +13,9 @@ import {
   User,
   Shield,
   Calendar,
-  Send
+  Send,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -26,6 +28,8 @@ import {
   OrganizationListSkeleton,
   ModalFieldsSkeleton
 } from '../components/Skeleton';
+
+const ITEMS_PER_PAGE = 10;
 
 const OrganizationManagement = () => {
   const navigate = useNavigate();
@@ -44,6 +48,12 @@ const OrganizationManagement = () => {
   const [selectedInvitation, setSelectedInvitation] = useState(null);
   const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
   const [resendLoadingId, setResendLoadingId] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+
   const isInvitePendingAcceptance = (invite) => (invite?.status || '').toLowerCase() !== 'accepted';
 
   useEffect(() => {
@@ -53,43 +63,54 @@ const OrganizationManagement = () => {
 
   useEffect(() => {
     setStatusFilter('');
+    setCurrentPage(1);
   }, [activeTab]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, statusFilter]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const listLimit = 200;
-      const orgParams = { limit: listLimit };
-      const invParams = { limit: listLimit };
+      const params = { 
+        limit: ITEMS_PER_PAGE,
+        page: currentPage
+      };
       const q = debouncedSearch;
       if (q) {
-        orgParams.q = q;
-        invParams.q = q;
+        params.q = q;
       }
       if (activeTab === 'registry' && statusFilter) {
-        orgParams.verification_status = statusFilter;
+        params.verification_status = statusFilter;
       }
       if (activeTab === 'invitations' && statusFilter) {
-        invParams.status = statusFilter;
+        params.status = statusFilter;
       }
 
-      const [orgsRes, invitesRes] = await Promise.all([
-        apiClient.get('/admin/organizations', { params: orgParams }),
-        apiClient.get('/admin/invitations', { params: invParams }),
-      ]);
-      setOrgs(orgsRes.data.data || []);
-      const inviteList = invitesRes.data.data || [];
-      setInvites(inviteList.filter(isInvitePendingAcceptance));
+      if (activeTab === 'registry') {
+        const res = await apiClient.get('/admin/organizations', { params });
+        setOrgs(res.data.data.organizations || []);
+        setTotalPages(res.data.data.totalPages || 0);
+        setTotalItems(res.data.data.total || 0);
+      } else {
+        const res = await apiClient.get('/admin/invitations', { params });
+        const inviteList = res.data.data.invitations || [];
+        setInvites(inviteList); // API already filters accepted ones if needed, or we filter here
+        setTotalPages(res.data.data.totalPages || 0);
+        setTotalItems(res.data.data.total || 0);
+      }
     } catch (error) {
       toast.error('Failed to fetch data');
     } finally {
       setLoading(false);
       setHasFetchedOnce(true);
     }
-  }, [debouncedSearch, statusFilter, activeTab]);
+  }, [debouncedSearch, statusFilter, activeTab, currentPage]);
 
   useEffect(() => {
     fetchData();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [fetchData]);
 
   const handleInvite = async (e) => {
@@ -152,6 +173,8 @@ const OrganizationManagement = () => {
   };
 
   if (loading && !hasFetchedOnce) return <OrganizationListSkeleton />;
+
+  const currentList = activeTab === 'invitations' ? invites : orgs;
 
   return (
     <div className={styles.container}>
@@ -223,7 +246,7 @@ const OrganizationManagement = () => {
 
       <div className={styles.listContainer}>
         <div className={styles.listGrid}>
-          {(activeTab === 'invitations' ? invites : orgs).length === 0 ? (
+          {currentList.length === 0 ? (
             <div className={styles.emptyState}>
               <div className={styles.emptyIllustration}>
                 <Building size={64} />
@@ -236,106 +259,138 @@ const OrganizationManagement = () => {
               </button>
             </div>
           ) : (
-            (activeTab === 'invitations' ? invites : orgs).map((item) => (
-              <div
-                key={item.id}
-                className={styles.listCard}
-                onClick={() => activeTab === 'registry' && navigate(`/organizations/${item.id}`)}
-              >
-                <div className={styles.cardTopBar}>
-                  <div className={styles.timeLabel}>
-                    <Timer size={14} />
-                    <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <button className={styles.saveBtn} onClick={(e) => e.stopPropagation()}>
-                    <Heart size={18} />
-                    <span>Save</span>
-                  </button>
-                </div>
-
-                <div className={styles.cardMainContent}>
-                  <h3 className={`${styles.orgNameTitle} whitespace-pre-wrap break-all`}>
-                    {activeTab === 'invitations' ? item.org_name : item.name}
-                  </h3>
-
-                  <div className={styles.metaRow}>
-                    <div className={styles.metaItem}>
-                      <MapPin size={16} />
-                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Medical Partner' : (item.city || 'Location Pending')}</span>
+            <>
+              {currentList.map((item) => (
+                <div
+                  key={item.id}
+                  className={styles.listCard}
+                  onClick={() => activeTab === 'registry' && navigate(`/organizations/${item.id}`)}
+                >
+                  <div className={styles.cardTopBar}>
+                    <div className={styles.timeLabel}>
+                      <Timer size={14} />
+                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
                     </div>
-                    <div className={styles.metaDivider}></div>
-                    <div className={styles.metaItem}>
-                      <Building size={16} />
-                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Facility' : (item.org_type || 'Hospital')}</span>
-                    </div>
-                    {(activeTab === 'registry' && item.verification_status === 'approved') && (
-                      <div className={styles.verifiedBadge}>
-                        <CheckCircle2 size={14} />
-                        <span>Verified</span>
-                      </div>
-                    )}
+                    <button className={styles.saveBtn} onClick={(e) => e.stopPropagation()}>
+                      <Heart size={18} />
+                      <span>Save</span>
+                    </button>
                   </div>
 
-                  <div className={styles.tagCloud}>
-                    {activeTab === 'registry' ? (
-                      <>
-                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.org_type || 'Facility'}</span>
-                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.city || 'Remote'}</span>
-                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.state || 'India'}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>Pending Invite</span>
-                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.contact_email}</span>
-                      </>
-                    )}
-                  </div>
+                  <div className={styles.cardMainContent}>
+                    <h3 className={`${styles.orgNameTitle} whitespace-pre-wrap break-all`}>
+                      {activeTab === 'invitations' ? item.org_name : item.name}
+                    </h3>
 
-                  <div className={styles.cardBottomRow}>
-                    <div className={styles.statsGroup}>
-                      <div className={styles.statBox}>
-                        <span className={styles.statLabel}>Organization Type</span>
-                        <span className={`${styles.statValue} whitespace-pre-wrap break-all`}>{activeTab === 'invitations' ? 'Medical Partner' : (item.org_type || 'Hospital')}</span>
+                    <div className={styles.metaRow}>
+                      <div className={styles.metaItem}>
+                        <MapPin size={16} />
+                        <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Medical Partner' : (item.city || 'Location Pending')}</span>
                       </div>
-                      <div className={styles.statDivider}></div>
-                      <div className={styles.statBox}>
-                        <span className={styles.statLabel}>Current Status</span>
-                        <span className={`${styles.statValue} whitespace-pre-wrap break-all`} style={{
-                          color: (item.verification_status === 'approved' || item.status === 'accepted') ? '#0d9488' : '#d97706'
-                        }}>
-                          {activeTab === 'invitations' ? item.status : item.verification_status}
-                        </span>
+                      <div className={styles.metaDivider}></div>
+                      <div className={styles.metaItem}>
+                        <Building size={16} />
+                        <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Facility' : (item.org_type || 'Hospital')}</span>
                       </div>
-                    </div>
-
-                    <div className={styles.actionGroup}>
-                      <button
-                        className={styles.viewDetailsBtn}
-                        onClick={(e) => handleViewDetails(e, item)}
-                      >
-                        View details
-                      </button>
-                      {activeTab === 'invitations' && (
-                        <button
-                          className={styles.primaryActionBtn}
-                          disabled={resendLoadingId === item.id}
-                          onClick={(e) => handleManageInvite(e, item, 'resend')}
-                        >
-                          {resendLoadingId === item.id ? (
-                            <>
-                              <span className={styles.btnSpinner} />
-                              Resending...
-                            </>
-                          ) : (
-                            'Resend Invite'
-                          )}
-                        </button>
+                      {(activeTab === 'registry' && item.verification_status === 'approved') && (
+                        <div className={styles.verifiedBadge}>
+                          <CheckCircle2 size={14} />
+                          <span>Verified</span>
+                        </div>
                       )}
                     </div>
+
+                    <div className={styles.tagCloud}>
+                      {activeTab === 'registry' ? (
+                        <>
+                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.org_type || 'Facility'}</span>
+                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.city || 'Remote'}</span>
+                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.state || 'India'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>Pending Invite</span>
+                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.contact_email}</span>
+                        </>
+                      )}
+                    </div>
+
+                    <div className={styles.cardBottomRow}>
+                      <div className={styles.statsGroup}>
+                        <div className={styles.statBox}>
+                          <span className={styles.statLabel}>Organization Type</span>
+                          <span className={`${styles.statValue} whitespace-pre-wrap break-all`}>{activeTab === 'invitations' ? 'Medical Partner' : (item.org_type || 'Hospital')}</span>
+                        </div>
+                        <div className={styles.statDivider}></div>
+                        <div className={styles.statBox}>
+                          <span className={styles.statLabel}>Current Status</span>
+                          <span className={`${styles.statValue} whitespace-pre-wrap break-all`} style={{
+                            color: (item.verification_status === 'approved' || item.status === 'accepted') ? '#0d9488' : '#d97706'
+                          }}>
+                            {activeTab === 'invitations' ? item.status : item.verification_status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={styles.actionGroup}>
+                        <button
+                          className={styles.viewDetailsBtn}
+                          onClick={(e) => handleViewDetails(e, item)}
+                        >
+                          View details
+                        </button>
+                        {activeTab === 'invitations' && (
+                          <button
+                            className={styles.primaryActionBtn}
+                            disabled={resendLoadingId === item.id}
+                            onClick={(e) => handleManageInvite(e, item, 'resend')}
+                          >
+                            {resendLoadingId === item.id ? (
+                              <>
+                                <span className={styles.btnSpinner} />
+                                Resending...
+                              </>
+                            ) : (
+                              'Resend Invite'
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button 
+                    className={styles.pageBtn} 
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => p - 1)}
+                  >
+                    <ChevronLeft size={16} /> Previous
+                  </button>
+                  <div className={styles.pageNumbers}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        className={`${styles.pageNum} ${currentPage === page ? styles.activePageNum : ''}`}
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  <button 
+                    className={styles.pageBtn} 
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => p + 1)}
+                  >
+                    Next <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

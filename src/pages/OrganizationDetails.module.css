@@ -210,6 +210,8 @@
   opacity: 0.6;
   cursor: not-allowed;
   box-shadow: none;
+  filter: grayscale(0.4);
+  pointer-events: auto; /* Enable tooltip on disabled button */
 }
 
 .rejectBtn {

@@ -38,6 +38,8 @@ const UserManagement = () => {
     userName: '' 
   });
 
+  const [totalPages, setTotalPages] = useState(0);
+
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchTerm), 400);
@@ -47,7 +49,10 @@ const UserManagement = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const params = {};
+      const params = {
+        page: currentPage,
+        limit: ITEMS_PER_PAGE
+      };
       if (debouncedSearch) params.searchTerm = debouncedSearch;
       if (orgFilter) params.org_id = orgFilter;
       if (statusFilter) params.is_active = statusFilter;
@@ -58,7 +63,8 @@ const UserManagement = () => {
         apiClient.get('/admin/users/organisations')
       ]);
 
-      setUsers(usersRes.data.data || []);
+      setUsers(usersRes.data.data.users || []);
+      setTotalPages(usersRes.data.data.totalPages || 0);
       if (statsRes.data.data) setStats(statsRes.data.data);
       if (orgsRes.data.data) setOrganisations(orgsRes.data.data);
     } catch (error) {
@@ -66,10 +72,11 @@ const UserManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, orgFilter, statusFilter]);
+  }, [debouncedSearch, orgFilter, statusFilter, currentPage]);
 
   useEffect(() => {
     fetchData();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [fetchData]);
 
   useEffect(() => {
@@ -105,9 +112,8 @@ const UserManagement = () => {
     }
   };
 
-  // Pagination
-  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
-  const paginatedUsers = users.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  // Pagination - No longer needed as it's done on server
+  const paginatedUsers = users;
 
   if (loading && users.length === 0) return <OrganizationListSkeleton />;
 
@@ -196,7 +202,7 @@ const UserManagement = () => {
       {/* List */}
       <div className={styles.listContainer}>
         <div className={styles.resultsCount}>
-          <UsersIcon size={14} /> {users.length} users found
+          <UsersIcon size={14} /> {stats.total} users found
         </div>
         <div className={styles.listGrid}>
           {paginatedUsers.length > 0 ? (
@@ -213,16 +219,16 @@ const UserManagement = () => {
                 </div>
 
                 <div className={styles.cardMainContent}>
-                  <h3 className={styles.userName}>{user.full_name}</h3>
+                  <h3 className={`${styles.userName} whitespace-pre-wrap break-all`}>{user.full_name}</h3>
 
                   <div className={styles.metaRow}>
                     <div className={styles.metaItem}>
                       <Building size={16} />
-                      <span>{user.organisation_name || 'No Hospital'}</span>
+                      <span className="whitespace-pre-wrap break-all">{user.organisation_name || 'No Hospital'}</span>
                     </div>
                     <div className={styles.metaItem}>
                       <Shield size={16} />
-                      <span>{user.role_label || user.role_name || 'Member'}</span>
+                      <span className="whitespace-pre-wrap break-all">{user.role_label || user.role_name || 'Member'}</span>
                     </div>
                   </div>
 

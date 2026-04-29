@@ -143,10 +143,10 @@ const AdminDashboard = () => {
       try {
         const [statsRes, verificationsRes] = await Promise.all([
           apiClient.get('/admin/dashboard-stats'),
-          apiClient.get('/admin/verifications')
+          apiClient.get('/admin/verifications', { params: { limit: 5 } })
         ]);
         setStats(statsRes.data.data);
-        setVerifications(verificationsRes.data.data);
+        setVerifications(verificationsRes.data.data.verifications || []);
       } catch (error) {
         console.error('Failed to fetch dashboard data', error);
       } finally {

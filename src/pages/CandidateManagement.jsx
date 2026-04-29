@@ -42,8 +42,12 @@ const CandidateManagement = () => {
       ]);
       
       setStats(statsRes.data.data);
-      setCandidates(listRes.data.data);
-      setPagination(listRes.data.pagination);
+      setCandidates(listRes.data.data.candidates || []);
+      setPagination({
+        total: listRes.data.data.total,
+        page: listRes.data.data.page,
+        totalPages: listRes.data.data.totalPages
+      });
     } catch (error) {
       console.error('Error fetching candidate data:', error);
       toast.error('Failed to load candidates');
@@ -55,6 +59,7 @@ const CandidateManagement = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchData();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 400);
     return () => clearTimeout(timer);
   }, [searchTerm, currentPage, appliedStatus]);
@@ -153,8 +158,8 @@ const CandidateManagement = () => {
               candidates.map((c) => (
                 <tr key={c.id}>
                   <td>
-                    <div className={styles.candidateName}>{c.full_name}</div>
-                    <div className={styles.candidateEmail}>{c.email}</div>
+                    <div className={`${styles.candidateName} whitespace-pre-wrap break-all`}>{c.full_name}</div>
+                    <div className={`${styles.candidateEmail} whitespace-pre-wrap break-all`}>{c.email}</div>
                   </td>
                   <td>{c.primary_role || 'Not Set'}</td>
                   <td>
@@ -184,27 +189,42 @@ const CandidateManagement = () => {
         </table>
 
         {/* Pagination Section */}
-        <div className={styles.pagination}>
-          <div className={styles.pageInfo}>
-            Showing page {pagination.page} of {pagination.totalPages}
+        {pagination.totalPages > 1 && (
+          <div className={styles.pagination}>
+            <div className={styles.pageInfo}>
+              Showing page {pagination.page} of {pagination.totalPages}
+            </div>
+            <div className={styles.pageActions}>
+              <button 
+                className={styles.pageBtn} 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => p - 1)}
+              >
+                <ChevronLeft size={16} /> Previous
+              </button>
+              
+              <div className={styles.pageNumbers}>
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    className={`${styles.pageNum} ${currentPage === page ? styles.activePageNum : ''}`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button 
+                className={styles.pageBtn} 
+                disabled={currentPage === pagination.totalPages}
+                onClick={() => setCurrentPage(p => p + 1)}
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
-          <div className={styles.pageActions}>
-            <button 
-              className={styles.pageBtn} 
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button 
-              className={styles.pageBtn} 
-              disabled={currentPage === pagination.totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

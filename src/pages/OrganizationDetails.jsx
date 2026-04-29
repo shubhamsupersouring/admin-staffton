@@ -56,7 +56,7 @@ const OrganizationDetails = () => {
           apiClient.get('/admin/jobs', { params: { organization_id: id } })
         ]);
         setData(orgRes.data.data);
-        setOrgJobs(jobsRes.data.data || []);
+        setOrgJobs(jobsRes.data.data.jobs || []);
       } catch (error) {
         toast.error('Failed to fetch data');
         navigate('/organizations');
@@ -202,7 +202,8 @@ const OrganizationDetails = () => {
           </button>
           <button 
             className={styles.approveBtn} 
-            disabled={updating || organisation.verification_status === 'approved'}
+            disabled={updating || organisation.verification_status === 'approved' || !onboarding?.isOnboardingComplete}
+            title={!onboarding?.isOnboardingComplete ? "User has not completed onboarding" : ""}
             onClick={() => setConfirmModal({ isOpen: true, type: 'approved', reason: '' })}
           >
             <ShieldCheck size={18} /> Approve

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: "https://dev-api.stafftonhealth.com/api/v1",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -23,7 +23,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('role');
       localStorage.removeItem('auth_user');
-      
+
       // We use window.location directly here to avoid circular dependencies with the Redux store
       // This will force a page reload and clear the Redux state
       if (!window.location.pathname.includes('/auth/login')) {

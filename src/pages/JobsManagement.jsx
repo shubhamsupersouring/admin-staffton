@@ -213,6 +213,7 @@ const JobsManagement = () => {
     active: 0,
     saved: 0
   });
+  const [totalPages, setTotalPages] = useState(0);
 
   // Debounce search
   useEffect(() => {
@@ -225,7 +226,9 @@ const JobsManagement = () => {
     try {
       const params = { 
         searchTerm: debouncedSearch,
-        sort: sortOrder
+        sort: sortOrder,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE
       };
       
       if (statusFilter) params.status = statusFilter;
@@ -240,7 +243,9 @@ const JobsManagement = () => {
         apiClient.get('/admin/jobs/stats')
       ]);
       
-      setJobs(jobsRes.data.data || []);
+      setJobs(jobsRes.data.data.jobs || []);
+      setTotalPages(jobsRes.data.data.totalPages || 0);
+      
       if (statsRes.data.data) {
         setStats({
           active: statsRes.data.data.active || 0,
@@ -254,10 +259,11 @@ const JobsManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, sortOrder, statusFilter, filters]);
+  }, [debouncedSearch, sortOrder, statusFilter, filters, currentPage]);
 
   useEffect(() => {
     fetchData();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [fetchData]);
 
   // Reset page on filter/search change
@@ -265,9 +271,8 @@ const JobsManagement = () => {
     setCurrentPage(1);
   }, [debouncedSearch, sortOrder, statusFilter, filters]);
 
-  // Pagination
-  const totalPages = Math.ceil(jobs.length / ITEMS_PER_PAGE);
-  const paginatedJobs = jobs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  // Pagination - No longer needed as it's done on server
+  const paginatedJobs = jobs;
 
   if (loading && jobs.length === 0) return <AdminDashboardSkeleton />;
 
