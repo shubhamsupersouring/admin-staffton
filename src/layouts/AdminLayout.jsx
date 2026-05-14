@@ -10,6 +10,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const AdminLayout = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [detailLabel, setDetailLabel] = useState(null);
 
   useEffect(() => {
@@ -39,8 +40,10 @@ const AdminLayout = () => {
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
       />
-      <div className={styles.wrapper}>
+      <div className={`${styles.wrapper} ${isCollapsed ? styles.wrapperCollapsed : ''}`}>
         <Header
           breadcrumbs={getBreadcrumbs()}
           onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}

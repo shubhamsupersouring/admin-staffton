@@ -10,6 +10,7 @@ import Login from '../pages/Login';
 import EntityManagement from '../pages/EntityManagement';
 import JobsManagement from '../pages/JobsManagement';
 import JobDetails from '../pages/JobDetails';
+import JobPipeline from '../pages/JobPipeline';
 import UserManagement from '../pages/UserManagement';
 import CandidateManagement from '../pages/CandidateManagement';
 import NotFound from '../pages/NotFound';
@@ -36,6 +37,7 @@ export const routes = [
       { path: 'jobs/post', element: <PostJobWizard /> },
       { path: 'jobs', element: <JobsManagement /> },
       { path: 'jobs/:id', element: <JobDetails /> },
+      { path: 'pipeline', element: <JobPipeline /> },
       { path: 'users', element: <UserManagement /> },
       { path: 'candidates', element: <CandidateManagement /> },
       { path: 'admins', element: <Navigate to="/settings" replace /> },

@@ -9,13 +9,17 @@ import {
   Building,
   Layers,
   Briefcase,
+  User,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 import { logout } from '../../features/auth/authSlice';
 import logoImg from '../../assets/images/inner-logo.png';
+import miniLogo from '../../assets/svg/logo.svg';
 import apiClient from '../../services/apiClient';
 
-const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
+const Sidebar = ({ isOpen = false, onClose = () => {}, isCollapsed = false, onToggleCollapse = () => {} }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
@@ -75,7 +79,7 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
       },
       {
         name: 'Users',
-        icon: <Users size={18} />,
+        icon: <User size={18} />,
         path: '/users',
       },
       {
@@ -101,13 +105,21 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
         className={`${styles.overlay} ${isOpen ? styles.overlayOpen : ''}`}
         onClick={onClose}
       />
-      <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
+      <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''} ${isCollapsed ? styles.sidebarCollapsed : ''}`}>
         <div className={styles.sidebarLogo}>
           <div className={styles.logoText}>
             <div className={styles.logoIcon}>
-              <img src={logoImg} alt="Staffton Logo" className={styles.logoImage} />
+              <img src={isCollapsed ? miniLogo : logoImg} alt="Staffton Logo" className={styles.logoImage} />
             </div>
           </div>
+          <button 
+            className={styles.collapseToggle}
+            style={{marginLeft:"20px"}} 
+            onClick={onToggleCollapse}
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
         </div>
 
         <nav className={styles.sidebarNav}>
@@ -120,9 +132,10 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
               className={({ isActive }) => 
                 isActive ? `${styles.navItem} ${styles.active}` : styles.navItem
               }
+              title={isCollapsed ? item.name : ''}
             >
               {item.icon}
-              {item.name}
+              {!isCollapsed && item.name}
               {typeof item.badge === 'number' && (
                 <span className={styles.navBadge}>{item.badge}</span>
               )}
@@ -138,9 +151,10 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
               className={({ isActive }) => 
                 isActive ? `${styles.navItem} ${styles.active}` : styles.navItem
               }
+              title={isCollapsed ? item.name : ''}
             >
               {item.icon}
-              {item.name}
+              {!isCollapsed && item.name}
             </NavLink>
           ))}
         </nav>

@@ -32,6 +32,72 @@ import apiClient from '../services/apiClient';
 import { OrganizationDetailsSkeleton } from '../components/Skeleton';
 import { useBreadcrumbDetail } from '../contexts/BreadcrumbDetailContext';
 import Modal from '../components/Modal/Modal';
+import { memo } from 'react';
+
+const REJECTION_REASONS = [
+  "Uploaded documents are unclear or not readable",
+  "Invalid or expired license / registration certificate",
+  "Incorrect document uploaded (does not match requirement)",
+  "GST / license details do not match uploaded documents",
+  "Organization details do not match submitted documents",
+  "Duplicate organization already exists on the platform",
+  "Others"
+];
+
+const JobCard = memo(({ job, organisation, navigate }) => {
+  const displayValue = (val) => {
+    if (!val) return '';
+    if (typeof val === 'object') return val.name || val.title || val.label || val.value || '';
+    return val;
+  };
+
+  return (
+    <div className={`${styles.jobCard}`}
+  
+    onClick={() => navigate(`/jobs/${job.id}`)} style={{ cursor: "pointer"}}>
+      <div className={styles.cardTop}>
+        <span className={styles.postedTime}>
+          <Clock size={14} /> Posted {new Date(job.created_at).toLocaleDateString()}
+        </span>
+        <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, textTransform: 'capitalize', background: job.status === 'active' ? '#f0fff4' : '#fffaf0', color: job.status === 'active' ? '#16a34a' : '#d97706' }}>
+          {job.status || 'draft'}
+        </span>
+      </div>
+      <div className={styles.cardMain}>
+        <h2 className={styles.jobTitle}>{displayValue(job.title)}</h2>
+        <div className={styles.metaRow}>
+          <span className={styles.metaItem}>
+            <MapPin size={16} className={styles.metaIcon} /> {displayValue(job.city) || 'Remote'}
+          </span>
+          <span className={styles.metaItem}>
+            <Building size={16} className={styles.metaIcon} /> {organisation.name}
+          </span>
+          {job.isUrgent && <span className={styles.urgentBadge}>Urgent</span>}
+        </div>
+        <div className={styles.tagsRow}>
+          {displayValue(job.profession) ? <span className={styles.tag}>{displayValue(job.profession)}</span> : null}
+          {displayValue(job.specialisation) ? <span className={styles.tag}>{displayValue(job.specialisation)}</span> : null}
+          {displayValue(job.job_type) ? <span className={styles.tag}>{displayValue(job.job_type)}</span> : <span className={styles.tag}>Full-Time</span>}
+        </div>
+      </div>
+      <div className={styles.cardFooter}>
+        <div className={styles.footerDetails}>
+          <div className={styles.footerGroup}>
+            <span className={styles.footerLabel}>Experience</span>
+            <span className={styles.footerValue}>{job.experience_min_yrs || 0} - {job.experience_max_yrs || 5} years</span>
+          </div>
+          <div className={styles.footerGroup}>
+            <span className={styles.footerLabel}>Budget</span>
+            <span className={`${styles.footerValue} ${styles.budgetValue}`}>
+              ₹{(job.salary_min/1000).toFixed(0)}k - ₹{(job.salary_max/1000).toFixed(0)}k /month
+            </span>
+          </div>
+        </div>
+        <button className={styles.applyBtn} onClick={(e) => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}>View Details</button>
+      </div>
+    </div>
+  );
+});
 
 const OrganizationDetails = () => {
   const { id } = useParams();
@@ -45,7 +111,8 @@ const OrganizationDetails = () => {
   const [confirmModal, setConfirmModal] = useState({ 
     isOpen: false, 
     type: null, // 'approve' or 'reject'
-    reason: '' 
+    selectedReason: '',
+    customReason: '' 
   });
 
   useEffect(() => {
@@ -79,7 +146,7 @@ const OrganizationDetails = () => {
     try {
       await apiClient.patch(`/admin/verifications/${id}`, { status, reason });
       toast.success(`Organization ${status} successfully`);
-      setConfirmModal({ isOpen: false, type: null, reason: '' });
+      setConfirmModal({ isOpen: false, type: null, selectedReason: '', customReason: '' });
       // Refresh data
       const res = await apiClient.get(`/admin/organizations/${id}`);
       setData(res.data.data);
@@ -113,58 +180,6 @@ const OrganizationDetails = () => {
 
   const { organisation, documents, members, invitation, onboarding, onboardingSteps = [], verificationFlags = [], latestVerification } = data;
 
-  const JobCard = ({ job }) => {
-    const displayValue = (val) => {
-      if (!val) return '';
-      if (typeof val === 'object') return val.name || val.title || val.label || val.value || '';
-      return val;
-    };
-
-    return (
-      <div className={styles.jobCard} onClick={() => navigate(`/jobs/${job.id}`)} style={{ cursor: 'pointer' }}>
-        <div className={styles.cardTop}>
-          <span className={styles.postedTime}>
-            <Clock size={14} /> Posted {new Date(job.created_at).toLocaleDateString()}
-          </span>
-          <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, textTransform: 'capitalize', background: job.status === 'active' ? '#f0fff4' : '#fffaf0', color: job.status === 'active' ? '#16a34a' : '#d97706' }}>
-            {job.status || 'draft'}
-          </span>
-        </div>
-        <div className={styles.cardMain}>
-          <h2 className={styles.jobTitle}>{displayValue(job.title)}</h2>
-          <div className={styles.metaRow}>
-            <span className={styles.metaItem}>
-              <MapPin size={16} className={styles.metaIcon} /> {displayValue(job.city) || 'Remote'}
-            </span>
-            <span className={styles.metaItem}>
-              <Building size={16} className={styles.metaIcon} /> {organisation.name}
-            </span>
-            {job.isUrgent && <span className={styles.urgentBadge}>Urgent</span>}
-          </div>
-          <div className={styles.tagsRow}>
-            {displayValue(job.profession) ? <span className={styles.tag}>{displayValue(job.profession)}</span> : null}
-            {displayValue(job.specialisation) ? <span className={styles.tag}>{displayValue(job.specialisation)}</span> : null}
-            {displayValue(job.job_type) ? <span className={styles.tag}>{displayValue(job.job_type)}</span> : <span className={styles.tag}>Full-Time</span>}
-          </div>
-        </div>
-        <div className={styles.cardFooter}>
-          <div className={styles.footerDetails}>
-            <div className={styles.footerGroup}>
-              <span className={styles.footerLabel}>Experience</span>
-              <span className={styles.footerValue}>{job.experience_min_yrs || 0} - {job.experience_max_yrs || 5} years</span>
-            </div>
-            <div className={styles.footerGroup}>
-              <span className={styles.footerLabel}>Budget</span>
-              <span className={`${styles.footerValue} ${styles.budgetValue}`}>
-                ₹{(job.salary_min/1000).toFixed(0)}k - ₹{(job.salary_max/1000).toFixed(0)}k /month
-              </span>
-            </div>
-          </div>
-          <button className={styles.applyBtn} onClick={(e) => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}>View Details</button>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className={styles.container}>
@@ -197,7 +212,7 @@ const OrganizationDetails = () => {
             <button 
               className={styles.rejectBtn} 
               disabled={updating || organisation.verification_status === 'rejected'}
-              onClick={() => setConfirmModal({ isOpen: true, type: 'rejected', reason: '' })}
+              onClick={() => setConfirmModal({ isOpen: true, type: 'rejected', selectedReason: '', customReason: '' })}
             >
               <ShieldAlert size={18} /> Reject
             </button>
@@ -206,7 +221,7 @@ const OrganizationDetails = () => {
             className={styles.approveBtn} 
             disabled={updating || organisation.verification_status === 'approved' || !onboarding?.isOnboardingComplete}
             title={!onboarding?.isOnboardingComplete ? "User has not completed onboarding" : ""}
-            onClick={() => setConfirmModal({ isOpen: true, type: 'approved', reason: '' })}
+            onClick={() => setConfirmModal({ isOpen: true, type: 'approved', selectedReason: '', customReason: '' })}
           >
             <ShieldCheck size={18} /> Approve
           </button>
@@ -407,7 +422,7 @@ const OrganizationDetails = () => {
           {activeTab === 'jobs' && (
             <div className={styles.tabJobsList}>
               {orgJobs.length > 0 ? (
-                orgJobs.map(job => <JobCard key={job.id} job={job} />)
+                orgJobs.map(job => <JobCard key={job.id} job={job} organisation={organisation} navigate={navigate} />)
               ) : (
                 <div className={styles.emptyJobs}>
                   <h3>No jobs posted yet</h3>
@@ -507,7 +522,7 @@ const OrganizationDetails = () => {
       <Modal 
         isOpen={confirmModal.isOpen} 
         onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
-        title={confirmModal.type === 'approved' ? 'Confirm Approval' : 'Rejection Details'}
+        title={confirmModal.type === 'approved' ? 'Confirm Approval' : 'Select Rejection Reason'}
       >
         <div className={styles.modalContent}>
           {confirmModal.type === 'approved' ? (
@@ -532,14 +547,38 @@ const OrganizationDetails = () => {
             </div>
           ) : (
             <div className={styles.rejectWrapper}>
-              <label className={styles.modalLabel}>Reason for Rejection</label>
-              <textarea 
-                className={styles.reasonInput}
-                placeholder="e.g., Documents are unclear or expired..."
-                value={confirmModal.reason}
-                onChange={(e) => setConfirmModal({ ...confirmModal, reason: e.target.value })}
-              />
-              <p className={styles.modalHelp}>This reason will be visible to the organization owner.</p>
+              <p className={styles.modalSubTitle}>Please select a reason for rejecting this organization.</p>
+              
+              <div className={styles.reasonsList}>
+                {REJECTION_REASONS.map((reason, idx) => (
+                  <label key={idx} className={`${styles.reasonItem} ${confirmModal.selectedReason === reason ? styles.reasonSelected : ''}`}>
+                    <input 
+                      type="radio" 
+                      name="rejectionReason" 
+                      value={reason} 
+                      checked={confirmModal.selectedReason === reason}
+                      onChange={(e) => setConfirmModal({ ...confirmModal, selectedReason: e.target.value })}
+                    />
+                    <span className={styles.reasonText}>{reason}</span>
+                  </label>
+                ))}
+              </div>
+
+              {confirmModal.selectedReason === 'Others' && (
+                <div className={styles.customReasonArea}>
+                  <label className={styles.modalLabel}>Specify Other Reason</label>
+                  <textarea 
+                    className={styles.reasonInput}
+                    placeholder="Provide detailed reason for rejection..."
+                    value={confirmModal.customReason}
+                    onChange={(e) => setConfirmModal({ ...confirmModal, customReason: e.target.value })}
+                    autoFocus
+                  />
+                </div>
+              )}
+
+              <p className={styles.modalHelp}>Selected reason will be visible to the organization owner.</p>
+              
               <div className={styles.modalActions}>
                 <button 
                   className={styles.modalCancel} 
@@ -549,8 +588,17 @@ const OrganizationDetails = () => {
                 </button>
                 <button 
                   className={styles.modalReject} 
-                  disabled={updating || !confirmModal.reason.trim()}
-                  onClick={() => handleUpdateStatus('rejected', confirmModal.reason)}
+                  disabled={
+                    updating || 
+                    !confirmModal.selectedReason || 
+                    (confirmModal.selectedReason === 'Others' && !confirmModal.customReason.trim())
+                  }
+                  onClick={() => {
+                    const finalReason = confirmModal.selectedReason === 'Others' 
+                      ? confirmModal.customReason 
+                      : confirmModal.selectedReason;
+                    handleUpdateStatus('rejected', finalReason);
+                  }}
                 >
                   {updating ? 'Processing...' : 'Reject Organization'}
                 </button>

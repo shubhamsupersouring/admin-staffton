@@ -7,14 +7,9 @@ import {
   Briefcase, 
   Clock, 
   Filter, 
-  ArrowUpRight, 
   Heart,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Plus,
-  Timer
+  Timer,
+  Workflow
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './JobsManagement.module.css';
@@ -24,6 +19,7 @@ import { AdminDashboardSkeleton } from '../components/Skeleton';
 import Pagination from '../components/Pagination/Pagination';
 
 const JobCard = ({ job, onViewDetails }) => {
+  const navigate = useNavigate();
   const displayValue = (val) => {
     if (!val) return '';
     if (typeof val === 'object') return val.name || val.title || val.label || val.value || '';
@@ -80,8 +76,11 @@ const JobCard = ({ job, onViewDetails }) => {
           </div>
 
           <div className={styles.actionGroup}>
+            <button className={styles.pipelineBtn} onClick={(e) => { e.stopPropagation(); navigate(`/pipeline?jobId=${job.id}`); }}>
+              <Workflow size={14} /> Pipeline
+            </button>
             <button className={styles.viewDetailsBtn} onClick={(e) => { e.stopPropagation(); onViewDetails(); }}>
-              View details
+              View Detail
             </button>
           </div>
         </div>
@@ -272,8 +271,7 @@ const JobsManagement = () => {
     setCurrentPage(1);
   }, [debouncedSearch, sortOrder, statusFilter, filters]);
 
-  // Pagination - No longer needed as it's done on server
-  const paginatedJobs = jobs;
+
 
   if (loading && jobs.length === 0) return <AdminDashboardSkeleton />;
 
@@ -379,8 +377,8 @@ const JobsManagement = () => {
           <Briefcase size={14} /> {jobs.length} jobs found
         </div>
         <div className={styles.listGrid}>
-          {paginatedJobs.length > 0 ? (
-            paginatedJobs.map(job => <JobCard key={job.id} job={job} onViewDetails={() => navigate(`/jobs/${job.id}`)} />)
+          {jobs.length > 0 ? (
+            jobs.map(job => <JobCard key={job.id} job={job} onViewDetails={() => navigate(`/jobs/${job.id}`)} />)
           ) : (
             <div className={styles.emptyState}>
               <div className={styles.emptyIllustration}>
@@ -408,12 +406,10 @@ const JobsManagement = () => {
         onApply={() => {
           setIsFilterOpen(false);
           setCurrentPage(1);
-          fetchData();
         }}
         onReset={() => {
           setFilters({ roles: ['All'], workTypes: [], shifts: [], salaryFrom: '', salaryTo: '' });
           setCurrentPage(1);
-          setTimeout(() => fetchData(), 0);
         }}
       />
     </div>

@@ -1,5 +1,11 @@
-/* index.css */
 @import "tailwindcss";
+
+
+@theme {
+  --color-brand-teal: #0FB8A4;
+  --color-brand-teal-dark: #0a9e8c;
+  --color-brand-navy: #0D1B2A;
+}
 * {
   box-sizing: border-box;
 }
