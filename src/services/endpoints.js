@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
     ME: '/admin/me',
     ADMINS: '/admin/admins',
     ADMIN_DETAIL: (id) => `/admin/admins/${id}`,
+    CANDIDATE_DETAIL: (id) => `/admin/candidates/${id}`,
   },
   ORGANIZATIONS: {
     LIST: '/admin/organizations',

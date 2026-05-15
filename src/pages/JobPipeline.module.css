@@ -139,6 +139,26 @@
   letter-spacing: 0.05em;
 }
 
+.headerFlex {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.headerInfo {
+  flex: 1;
+}
+
+.modalAvatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 18px;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  background: #f1f5f9;
+}
+
 .dot {
   width: 10px;
   height: 10px;
@@ -364,5 +384,251 @@
   
   .cardBottom {
     gap: 16px;
+  }
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background: white;
+  width: 90%;
+  max-width: 550px;
+  max-height: 90vh;
+  border-radius: 24px;
+  position: relative;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modalContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0;
+  border-radius: 10px;
+}
+
+.modalClose {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.modalClose:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  transform: rotate(90deg);
+}
+
+.modalBody {
+  padding: 40px;
+}
+
+.candidateHeader {
+  margin-bottom: 32px;
+}
+
+.candidateHeader h2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.candidateHeader .modalRole {
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.detailCards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.detailCard {
+  background: #e6fffa;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s;
+}
+
+.detailCard:hover {
+  transform: translateY(-2px);
+}
+
+.detailCardIcon {
+  color: #0fb8a4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.detailCardValue {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.summaryText {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #475569;
+  font-weight: 500;
+  margin-bottom: 32px;
+}
+
+.skillsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.skillTag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.contactItem svg {
+  color: #cbd5e1;
+}
+
+.docsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.docItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1px solid #f1f5f9;
+}
+
+.docItem:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  transform: translateX(4px);
+}
+
+.docIcon {
+  width: 40px;
+  height: 40px;
+  background: white;
+  color: #0fb8a4;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.docDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.docName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.docType {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (max-width: 600px) {
+  .detailCards {
+    grid-template-columns: 1fr;
+  }
+  
+  .modalBody {
+    padding: 24px;
   }
 }

@@ -33,7 +33,7 @@ const JobCard = ({ job, onViewDetails }) => {
           <Timer size={14} />
           <span>Posted {new Date(job.created_at).toLocaleDateString()}</span>
         </div>
-        <span className={`${styles.statusBadge} ${job.status === 'active' ? styles.badgeActive : styles.badgePending}`}>
+        <span className={`${styles.statusBadge} ${(job.status === 'active' || job.status === 'posted') ? styles.badgeActive : styles.badgePending}`}>
           {job.status || 'draft'}
         </span>
       </div>
@@ -332,7 +332,7 @@ const JobsManagement = () => {
           <div className={`${styles.tab} ${!statusFilter ? styles.activeTab : ''}`} onClick={() => setStatusFilter('')}>
             All Jobs
           </div>
-          <div className={`${styles.tab} ${statusFilter === 'active' ? styles.activeTab : ''}`} onClick={() => setStatusFilter('active')}>
+          <div className={`${styles.tab} ${statusFilter === 'posted' ? styles.activeTab : ''}`} onClick={() => setStatusFilter('posted')}>
             Active
           </div>
           <div className={`${styles.tab} ${statusFilter === 'draft' ? styles.activeTab : ''}`} onClick={() => setStatusFilter('draft')}>
