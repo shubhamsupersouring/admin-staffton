@@ -5,15 +5,15 @@ import {
   MapPin, 
   Building, 
   Briefcase, 
-  Clock, 
   Filter, 
-  Heart,
   Timer,
+  Clock,
+  Heart,
   Workflow
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './JobsManagement.module.css';
-import apiClient from '../services/apiClient';
+import { jobService } from '../services/job.service';
 import Modal from '../components/Modal/Modal';
 import { AdminDashboardSkeleton } from '../components/Skeleton';
 import Pagination from '../components/Pagination/Pagination';
@@ -238,20 +238,20 @@ const JobsManagement = () => {
       if (filters.salaryFrom) params.salaryFrom = filters.salaryFrom;
       if (filters.salaryTo) params.salaryTo = filters.salaryTo;
       
-      const [jobsRes, statsRes] = await Promise.all([
-        apiClient.get('/admin/jobs', { params }),
-        apiClient.get('/admin/jobs/stats')
+      const [jobsData, statsData] = await Promise.all([
+        jobService.getJobs(params),
+        jobService.getStats()
       ]);
       
-      setJobs(jobsRes.data.data.jobs || []);
-      setTotalPages(jobsRes.data.data.totalPages || 0);
+      setJobs(jobsData.data.jobs || []);
+      setTotalPages(jobsData.data.totalPages || 0);
       
-      if (statsRes.data.data) {
+      if (statsData.data) {
         setStats({
-          active: statsRes.data.data.active || 0,
-          saved: statsRes.data.data.closed || 0,
-          applied: statsRes.data.data.total || 0,
-          underReview: statsRes.data.data.pending || 0
+          active: statsData.data.active || 0,
+          saved: statsData.data.closed || 0,
+          applied: statsData.data.total || 0,
+          underReview: statsData.data.pending || 0
         });
       }
     } catch (error) {

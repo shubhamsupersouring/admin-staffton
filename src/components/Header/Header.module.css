@@ -39,6 +39,13 @@
 
 .crumb {
   color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.crumb:hover {
+  color: var(--teal);
+  text-decoration: underline;
 }
 
 .activeCrumb {

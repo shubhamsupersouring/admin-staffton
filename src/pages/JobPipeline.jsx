@@ -6,16 +6,16 @@ import {
   MapPin, 
   Briefcase, 
   Calendar, 
-  FileText, 
   Clock, 
-  Lock, 
   Eye, 
-  Check, 
+  AlertCircle,
+  Lock,
+  Check,
   X,
-  AlertCircle
+  FileText
 } from 'lucide-react';
 import styles from './JobPipeline.module.css';
-import apiClient from '../services/apiClient';
+import { jobService } from '../services/job.service';
 import toast from 'react-hot-toast';
 
 const JobPipeline = () => {
@@ -53,20 +53,22 @@ const JobPipeline = () => {
     
     setLoading(true);
     try {
-      const response = await apiClient.get('/organizations/jobs/pipeline', {
-        params: {
-          jobId,
-          status: statusMap[activeTab],
-          page: pagination.page,
-          pageSize: pagination.pageSize
-        }
+      const response = await jobService.getPipeline(jobId, {
+        status: statusMap[activeTab],
+        page: pagination.page,
+        pageSize: pagination.pageSize
       });
       
-      if (response.data.success) {
-        setCandidates(response.data.data || []);
-        if (response.data.pagination) {
-          setPagination(prev => ({ ...prev, ...response.data.pagination }));
-        }
+      console.log("Pipeline API Response:", response);
+      
+      if (response.success && response.data) {
+        setCandidates(response.data.candidates || []);
+        setPagination({
+          total: response.data.total || 0,
+          page: response.data.page || 1,
+          pageSize: response.data.limit || 10,
+          totalPages: response.data.totalPages || 1
+        });
       }
     } catch (error) {
       console.error('Error fetching candidates:', error);
@@ -168,7 +170,7 @@ const JobPipeline = () => {
           ) : candidates.length > 0 ? (
             candidates.map((candidate) => (
               <article 
-                key={candidate.applicationId} 
+                key={candidate.application_id} 
                 className={styles.card}
               >
                 {/* Card Top */}
@@ -176,41 +178,20 @@ const JobPipeline = () => {
                   <div className={styles.candidateInfo}>
                     <div 
                       className={styles.avatar} 
-                      style={{ backgroundColor: getRandomColor(candidate.candidateId) }}
+                      style={{ backgroundColor: getRandomColor(candidate.candidate_id) }}
                     >
-                      {getInitials(candidate.candidateName)}
+                      {getInitials(candidate.full_name)}
                     </div>
                     <div className={styles.nameWrapper}>
-                      <h3>
-                        {candidate.candidateName}
-                        <Lock size={14} />
-                      </h3>
-                      <p className={styles.role}>{candidate.primaryRole}</p>
+                      <h3>{candidate.full_name}</h3>
+                      <p className={styles.role}>{candidate.primary_role}</p>
                     </div>
                   </div>
 
                   <div className={styles.actions}>
-                    <div className={styles.appliedDate}>
-                      <Clock size={14} />
-                      Applied {formatDate(candidate.appliedAt)}
-                    </div>
-                    <button className={styles.iconBtn} aria-label="Unlock">
-                      <Lock size={18} />
-                    </button>
-                    <button className={styles.iconBtn} aria-label="View Details" onClick={() => navigate(`/candidates/${candidate.candidateId}`)}>
+                    <button className={styles.viewBtn} disabled>
                       <Eye size={18} />
-                    </button>
-                    <button 
-                      className={`${styles.iconBtn} ${styles.approveBtn}`}
-                      aria-label="Approve"
-                    >
-                      <Check size={18} />
-                    </button>
-                    <button 
-                      className={`${styles.iconBtn} ${styles.rejectBtn}`}
-                      aria-label="Reject"
-                    >
-                      <X size={18} />
+                      View Profile
                     </button>
                   </div>
                 </div>
@@ -223,16 +204,15 @@ const JobPipeline = () => {
                   </div>
                   <div className={styles.infoItem}>
                     <Briefcase size={16} />
-                    {candidate.experience} years
+                    {candidate.years_experience} years
                   </div>
                   <div className={styles.infoItem}>
                     <Calendar size={16} />
-                    {candidate.availability}
+                    {candidate.availability_to_join}
                   </div>
                   <div className={styles.infoItem}>
-                    <FileText size={16} />
-                    <span className={styles.jobId}>{candidate.jobIdDisplay}</span>
-                    <span>{candidate.jobTitle}</span>
+                    <LayoutList size={16} />
+                    <span className={styles.jobId}>{candidate.job_id_display}</span>
                   </div>
                 </footer>
               </article>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Bell, Settings, ChevronRight, Menu } from 'lucide-react';
 import styles from './Header.module.css';
 
@@ -15,18 +16,25 @@ const Header = ({ breadcrumbs, onToggleSidebar }) => {
           <Menu size={20} />
         </button>
         <div className={styles.breadcrumbs}>
-          {breadcrumbs.map((crumb, index) => (
-            <React.Fragment key={index}>
-              <span className={index === breadcrumbs.length - 1 ? styles.activeCrumb : styles.crumb}>
-                {crumb}
-              </span>
-              {index < breadcrumbs.length - 1 && (
-                <div className={styles.separator}>
-                  <ChevronRight size={14} />
-                </div>
-              )}
-            </React.Fragment>
-          ))}
+          {breadcrumbs.map((crumb, index) => {
+            const isLast = index === breadcrumbs.length - 1;
+            return (
+              <React.Fragment key={index}>
+                {isLast ? (
+                  <span className={styles.activeCrumb}>{crumb.label}</span>
+                ) : (
+                  <Link to={crumb.path} className={styles.crumb}>
+                    {crumb.label}
+                  </Link>
+                )}
+                {!isLast && (
+                  <div className={styles.separator}>
+                    <ChevronRight size={14} />
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
 

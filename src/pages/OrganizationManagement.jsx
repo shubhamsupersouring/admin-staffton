@@ -8,20 +8,17 @@ import {
   Building,
   MapPin,
   Timer,
-  Heart,
   Mail,
   User,
   Shield,
   Calendar,
-  Send,
-  ChevronLeft,
-  ChevronRight
+  Send
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import styles from './OrganizationManagement.module.css';
 import Modal from '../components/Modal/Modal';
-import apiClient from '../services/apiClient';
+import { organizationService } from '../services/organization.service';
 import {
   FormOverlayContainer,
   FormSubmitOverlay,
@@ -74,32 +71,24 @@ const OrganizationManagement = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { 
-        limit: ITEMS_PER_PAGE,
-        page: currentPage
+      const params = {
+        page: currentPage,
+        limit: 10,
+        searchTerm: debouncedSearch,
+        status: statusFilter === 'all' ? '' : statusFilter
       };
-      const q = debouncedSearch;
-      if (q) {
-        params.q = q;
-      }
-      if (activeTab === 'registry' && statusFilter) {
-        params.verification_status = statusFilter;
-      }
-      if (activeTab === 'invitations' && statusFilter) {
-        params.status = statusFilter;
-      }
 
       if (activeTab === 'registry') {
-        const res = await apiClient.get('/admin/organizations', { params });
-        setOrgs(res.data.data.organizations || []);
-        setTotalPages(res.data.data.totalPages || 0);
-        setTotalItems(res.data.data.total || 0);
+        const res = await organizationService.getOrganizations(params);
+        setOrgs(res.data.organizations || []);
+        setTotalPages(res.data.totalPages || 0);
+        setTotalItems(res.data.total || 0);
       } else {
-        const res = await apiClient.get('/admin/invitations', { params });
-        const inviteList = res.data.data.invitations || [];
-        setInvites(inviteList); // API already filters accepted ones if needed, or we filter here
-        setTotalPages(res.data.data.totalPages || 0);
-        setTotalItems(res.data.data.total || 0);
+        const res = await organizationService.getInvitations(params);
+        const inviteList = res.data.invitations || [];
+        setInvites(inviteList);
+        setTotalPages(res.data.totalPages || 0);
+        setTotalItems(res.data.total || 0);
       }
     } catch (error) {
       toast.error('Failed to fetch data');
@@ -118,8 +107,8 @@ const OrganizationManagement = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await apiClient.post('/admin/invitations', formData);
-      toast.success('Invitation sent!');
+      await organizationService.inviteOrganization(formData);
+      toast.success('Organization invited successfully!');
       setIsModalOpen(false);
       setFormData({ org_name: '', contact_name: '', contact_email: '' });
       fetchData();
@@ -154,7 +143,7 @@ const OrganizationManagement = () => {
       if (action === 'revoke') {
         if (!window.confirm('Are you sure you want to revoke this invitation?')) return;
       }
-      await apiClient.patch(`/admin/invitations/${item.id}`, { action });
+      await organizationService.updateInvitation(item.id, { action });
       if (action === 'resend') {
         toast.success('Invitation resent');
       } else if (action === 'revoke') {

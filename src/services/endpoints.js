@@ -5,14 +5,43 @@ export const API_ENDPOINTS = {
     VERIFY_OTP: '/auth/candidate/verify-otp',
     ME: '/auth/me',
     ADMIN_LOGIN: '/auth/admin/login',
+    VERIFY_INVITATION: (token) => `/auth/invitation/verify/${token}`,
+    ACCEPT_INVITATION: '/auth/invitation/accept',
   },
   ADMIN: {
     DASHBOARD_STATS: '/admin/dashboard-stats',
+    ME: '/admin/me',
+    ADMINS: '/admin/admins',
+    ADMIN_DETAIL: (id) => `/admin/admins/${id}`,
+  },
+  ORGANIZATIONS: {
+    LIST: '/admin/organizations',
+    DETAILS: (id) => `/admin/organizations/${id}`,
     INVITATIONS: '/admin/invitations',
+    INVITATION_DETAIL: (id) => `/admin/invitations/${id}`,
     VERIFICATIONS: '/admin/verifications',
+    VERIFICATION_DETAIL: (id) => `/admin/verifications/${id}`,
+  },
+  JOBS: {
+    LIST: '/admin/jobs',
+    STATS: '/admin/jobs/stats',
+    DETAILS: (id) => `/admin/jobs/${id}`,
+    PIPELINE: (id) => `/admin/jobs/${id}/pipeline`,
   },
   CANDIDATES: {
-    LIST: '/candidates',
-    DETAILS: (id) => `/candidates/${id}`,
+    LIST: '/admin/candidates',
+    STATS: '/admin/candidates/stats',
+    DETAILS: (id) => `/admin/candidates/${id}`,
   },
+  USERS: {
+    LIST: '/admin/users',
+    STATS: '/admin/users/stats',
+    ORGANIZATIONS: '/admin/users/organisations',
+    TOGGLE_STATUS: (id) => `/admin/users/${id}/toggle`,
+  },
+  ENTITIES: {
+    ALL: '/admin/entities/all',
+    BASE: '/admin/entities',
+    DETAIL: (id) => `/admin/entities/${id}`,
+  }
 };

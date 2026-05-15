@@ -19,17 +19,22 @@ const AdminLayout = () => {
 
   const getBreadcrumbs = () => {
     const paths = location.pathname.split('/').filter(Boolean);
-    if (paths.length === 0) return ['Dashboard'];
+    const breadcrumbs = [{ label: 'Dashboard', path: '/' }];
 
-    const labels = paths.map((p, i) => {
+    let currentPath = '';
+    paths.forEach((p, i) => {
+      currentPath += `/${p}`;
       const isLast = i === paths.length - 1;
+      let label = p.charAt(0).toUpperCase() + p.slice(1);
+
       if (isLast && UUID_RE.test(p)) {
-        return detailLabel || 'Organization';
+        label = detailLabel || 'Organization';
       }
-      return p.charAt(0).toUpperCase() + p.slice(1);
+
+      breadcrumbs.push({ label, path: currentPath });
     });
 
-    return ['Dashboard', ...labels];
+    return breadcrumbs;
   };
 
   const breadcrumbContextValue = useMemo(() => ({ setDetailLabel }), []);

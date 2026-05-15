@@ -10,7 +10,6 @@ import {
   MapPin, 
   FileText, 
   CheckCircle, 
-  XCircle, 
   Clock, 
   Download,
   AlertCircle,
@@ -21,14 +20,12 @@ import {
   Circle,
   Calendar,
   Layers,
-  Activity,
-  Briefcase,
-  Heart,
-  CheckCircle2
+  Activity
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './OrganizationDetails.module.css';
-import apiClient from '../services/apiClient';
+import { organizationService } from '../services/organization.service';
+import { jobService } from '../services/job.service';
 import { OrganizationDetailsSkeleton } from '../components/Skeleton';
 import { useBreadcrumbDetail } from '../contexts/BreadcrumbDetailContext';
 import Modal from '../components/Modal/Modal';
@@ -118,12 +115,12 @@ const OrganizationDetails = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const [orgRes, jobsRes] = await Promise.all([
-          apiClient.get(`/admin/organizations/${id}`),
-          apiClient.get('/admin/jobs', { params: { organization_id: id } })
+        const [orgData, jobsData] = await Promise.all([
+          organizationService.getOrganizationDetails(id),
+          jobService.getJobs({ organization_id: id })
         ]);
-        setData(orgRes.data.data);
-        setOrgJobs(jobsRes.data.data.jobs || []);
+        setData(orgData.data);
+        setOrgJobs(jobsData.data.jobs || []);
       } catch (error) {
         toast.error('Failed to fetch data');
         navigate('/organizations');
@@ -144,12 +141,12 @@ const OrganizationDetails = () => {
   const handleUpdateStatus = async (status, reason = null) => {
     setUpdating(true);
     try {
-      await apiClient.patch(`/admin/verifications/${id}`, { status, reason });
+      await organizationService.updateVerificationStatus(id, { status, reason });
       toast.success(`Organization ${status} successfully`);
       setConfirmModal({ isOpen: false, type: null, selectedReason: '', customReason: '' });
       // Refresh data
-      const res = await apiClient.get(`/admin/organizations/${id}`);
-      setData(res.data.data);
+      const res = await organizationService.getOrganizationDetails(id);
+      setData(res.data);
     } catch (error) {
       toast.error('Failed to update status');
     } finally {
@@ -197,7 +194,7 @@ const OrganizationDetails = () => {
           </div>
           <div className={styles.titleArea}>
             <div className={styles.titleRow}>
-              <h1 className={styles.title}>{organisation.name}</h1>
+              <h1 className={`${styles.title} whitespace-pre-wrap  wrap-break-word [word-break:break-word]`}>{organisation.name}</h1>
               {getStatusPill(organisation.verification_status)}
             </div>
             <div className={styles.metaRow}>

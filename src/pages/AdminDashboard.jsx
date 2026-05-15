@@ -12,7 +12,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import styles from './AdminDashboard.module.css';
-import apiClient from '../services/apiClient';
+import { adminService } from '../services/admin.service';
+import { organizationService } from '../services/organization.service';
 import Modal from '../components/Modal/Modal';
 import {
   AdminDashboardSkeleton,
@@ -141,12 +142,12 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, verificationsRes] = await Promise.all([
-          apiClient.get('/admin/dashboard-stats'),
-          apiClient.get('/admin/verifications', { params: { limit: 5 } })
+        const [statsData, verificationsData] = await Promise.all([
+          adminService.getDashboardStats(),
+          organizationService.getVerifications({ limit: 5 })
         ]);
-        setStats(statsRes.data.data);
-        setVerifications(verificationsRes.data.data.verifications || []);
+        setStats(statsData.data);
+        setVerifications(verificationsData.data.verifications || []);
       } catch (error) {
         console.error('Failed to fetch dashboard data', error);
       } finally {
@@ -160,7 +161,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await apiClient.post('/admin/invitations', formData);
+      await organizationService.inviteOrganization(formData);
       toast.success('Organization invited successfully!');
       setIsInviteModalOpen(false);
       setFormData({ org_name: '', contact_name: '', contact_email: '' });

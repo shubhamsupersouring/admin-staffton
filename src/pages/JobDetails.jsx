@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './JobDetails.module.css';
-import apiClient from '../services/apiClient';
+import { jobService } from '../services/job.service';
 import { useBreadcrumbDetail } from '../contexts/BreadcrumbDetailContext';
 import { AdminDashboardSkeleton } from '../components/Skeleton';
 
@@ -28,8 +28,8 @@ const JobDetails = () => {
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const res = await apiClient.get(`/admin/jobs/${id}`);
-        setJob(res.data.data);
+        const data = await jobService.getJobDetails(id);
+        setJob(data.data);
       } catch (error) {
         toast.error('Failed to load job details');
         navigate('/jobs');
