@@ -16,7 +16,7 @@ import {
 import toast from 'react-hot-toast';
 import styles from './EntityManagement.module.css';
 import Modal from '../components/Modal/Modal';
-import apiClient from '../services/apiClient';
+import { entityService } from '../services/entity.service';
 import { OrganizationListSkeleton } from '../components/Skeleton';
 
 const ENTITY_TYPES = [
@@ -57,14 +57,14 @@ const EntityManagement = () => {
     try {
       const params = { type: activeTab };
       if (debouncedSearch) params.q = debouncedSearch;
-      const res = await apiClient.get('/admin/entities/all', { params });
+      const entitiesData = await entityService.getAll(params);
       
-      let data = res.data.data;
+      let data = entitiesData.data;
 
       // If on role tab, we also need specializations to build the tree
       if (activeTab === 'role') {
-        const specRes = await apiClient.get('/admin/entities/all', { params: { type: 'specialization' } });
-        const allSpecs = specRes.data.data;
+        const specData = await entityService.getAll({ type: 'specialization' });
+        const allSpecs = specData.data;
         
         // Map specializations to their parents
         data = data.map(role => ({
@@ -77,8 +77,8 @@ const EntityManagement = () => {
 
       // Fetch roles if we are on specialization tab to populate parent dropdown
       if (activeTab === 'specialization') {
-        const rolesRes = await apiClient.get('/admin/entities/all', { params: { type: 'role' } });
-        setRoles(rolesRes.data.data);
+        const rolesData = await entityService.getAll({ type: 'role' });
+        setRoles(rolesData.data);
       }
     } catch (error) {
       toast.error('Failed to fetch entities');
@@ -95,10 +95,10 @@ const EntityManagement = () => {
     e.preventDefault();
     try {
       if (editingEntity) {
-        await apiClient.put(`/admin/entities/${editingEntity.id}`, formData);
+        await entityService.update(editingEntity.id, formData);
         toast.success('Entity updated successfully');
       } else {
-        await apiClient.post('/admin/entities', { ...formData, type: activeTab });
+        await entityService.create({ ...formData, type: activeTab });
         toast.success('Entity created successfully');
       }
       setIsModalOpen(false);
@@ -113,7 +113,7 @@ const EntityManagement = () => {
   const handleDelete = async (id) => {
     if (!window.confirm(`Are you sure you want to PERMANENTLY delete this ${activeTab.slice(0, -1)}? This cannot be undone.`)) return;
     try {
-      await apiClient.delete(`/admin/entities/${id}`);
+      await entityService.delete(id);
       toast.success('Entity deleted successfully');
       fetchEntities();
     } catch (error) {
@@ -125,7 +125,7 @@ const EntityManagement = () => {
     const action = entity.is_active ? 'disable' : 'enable';
     if (!window.confirm(`Are you sure you want to ${action} this ${activeTab.slice(0, -1)}?`)) return;
     try {
-      await apiClient.put(`/admin/entities/${entity.id}`, { is_active: !entity.is_active });
+      await entityService.update(entity.id, { is_active: !entity.is_active });
       toast.success(`${entity.label} ${entity.is_active ? 'disabled' : 'enabled'} successfully`);
       fetchEntities();
     } catch (error) {

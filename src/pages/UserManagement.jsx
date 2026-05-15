@@ -7,8 +7,6 @@ import {
   Shield,
   Power,
   PowerOff,
-  ChevronLeft,
-  ChevronRight,
   Mail,
   Phone,
   Clock,
@@ -16,7 +14,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './UserManagement.module.css';
-import apiClient from '../services/apiClient';
+import { userService } from '../services/user.service';
 import { OrganizationListSkeleton } from '../components/Skeleton';
 import Modal from '../components/Modal/Modal';
 import Pagination from '../components/Pagination/Pagination';
@@ -58,16 +56,16 @@ const UserManagement = () => {
       if (orgFilter) params.org_id = orgFilter;
       if (statusFilter) params.is_active = statusFilter;
 
-      const [usersRes, statsRes, orgsRes] = await Promise.all([
-        apiClient.get('/admin/users', { params }),
-        apiClient.get('/admin/users/stats'),
-        apiClient.get('/admin/users/organisations')
+      const [usersData, statsData, orgsData] = await Promise.all([
+        userService.getUsers(params),
+        userService.getStats(),
+        userService.getOrganizations()
       ]);
 
-      setUsers(usersRes.data.data.users || []);
-      setTotalPages(usersRes.data.data.totalPages || 0);
-      if (statsRes.data.data) setStats(statsRes.data.data);
-      if (orgsRes.data.data) setOrganisations(orgsRes.data.data);
+      setUsers(usersData.data.users || []);
+      setTotalPages(usersData.data.totalPages || 0);
+      if (statsData.data) setStats(statsData.data);
+      if (orgsData.data) setOrganisations(orgsData.data);
     } catch (error) {
       toast.error('Failed to fetch users');
     } finally {
@@ -104,8 +102,8 @@ const UserManagement = () => {
 
   const performToggle = async (userId) => {
     try {
-      const res = await apiClient.patch(`/admin/users/${userId}/toggle`);
-      toast.success(res.data.message);
+      const data = await userService.toggleStatus(userId);
+      toast.success(data.message);
       fetchData();
       setDeactivationModal({ isOpen: false, userId: null, userName: '' });
     } catch (error) {

@@ -203,15 +203,30 @@
   color: var(--navy);
 }
 
-.applyBtn {
-  padding: 10px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  background: var(--navy);
-  border: 1px solid var(--navy);
+.pipelineBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  background-color: var(--teal);
   color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(15, 184, 164, 0.2);
+}
+
+.pipelineBtn:hover {
+  background-color: var(--teal-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 184, 164, 0.3);
+}
+
+.pipelineBtn:active {
+  transform: translateY(0);
 }
 
 /* Detail Section Blocks */

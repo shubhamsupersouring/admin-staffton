@@ -149,7 +149,7 @@
   border: 1px solid var(--border);
   padding: 20px 22px;
   transition: box-shadow 0.18s;
-  cursor: default;
+  cursor: pointer;
 }
 
 .listCard:hover {

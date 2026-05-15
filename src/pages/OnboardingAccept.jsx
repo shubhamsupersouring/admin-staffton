@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './OnboardingAccept.module.css';
-import apiClient from '../services/apiClient';
+import { authService } from '../services/auth.service';
 import { OnboardingAcceptSkeleton, FormOverlayContainer, FormSubmitOverlay } from '../components/Skeleton';
 
 const OnboardingAccept = () => {
@@ -36,8 +36,8 @@ const OnboardingAccept = () => {
 
     const verifyToken = async () => {
       try {
-        const res = await apiClient.get(`/auth/invitation/verify/${token}`);
-        setInviteData(res.data.data);
+        const data = await authService.verifyInvitation(token);
+        setInviteData(data.data);
       } catch (error) {
         toast.error(error.response?.data?.message || 'Link expired or invalid');
         navigate('/login');
@@ -58,7 +58,7 @@ const OnboardingAccept = () => {
 
     setSubmitting(true);
     try {
-      const res = await apiClient.post('/auth/invitation/accept', { token, password });
+      const data = await authService.acceptInvitation(token, password);
       toast.success('Account set up successfully!');
       
       // Store token

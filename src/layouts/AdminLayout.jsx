@@ -10,6 +10,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const AdminLayout = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [detailLabel, setDetailLabel] = useState(null);
 
   useEffect(() => {
@@ -18,17 +19,22 @@ const AdminLayout = () => {
 
   const getBreadcrumbs = () => {
     const paths = location.pathname.split('/').filter(Boolean);
-    if (paths.length === 0) return ['Dashboard'];
+    const breadcrumbs = [{ label: 'Dashboard', path: '/' }];
 
-    const labels = paths.map((p, i) => {
+    let currentPath = '';
+    paths.forEach((p, i) => {
+      currentPath += `/${p}`;
       const isLast = i === paths.length - 1;
+      let label = p.charAt(0).toUpperCase() + p.slice(1);
+
       if (isLast && UUID_RE.test(p)) {
-        return detailLabel || 'Organization';
+        label = detailLabel || 'Organization';
       }
-      return p.charAt(0).toUpperCase() + p.slice(1);
+
+      breadcrumbs.push({ label, path: currentPath });
     });
 
-    return ['Dashboard', ...labels];
+    return breadcrumbs;
   };
 
   const breadcrumbContextValue = useMemo(() => ({ setDetailLabel }), []);
@@ -39,8 +45,10 @@ const AdminLayout = () => {
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
       />
-      <div className={styles.wrapper}>
+      <div className={`${styles.wrapper} ${isCollapsed ? styles.wrapperCollapsed : ''}`}>
         <Header
           breadcrumbs={getBreadcrumbs()}
           onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}

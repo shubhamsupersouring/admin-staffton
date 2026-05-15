@@ -6,14 +6,12 @@ import {
   Briefcase, 
   UserX, 
   UserCheck,
-  ChevronLeft,
-  ChevronRight,
   Mail,
   Phone,
   MapPin
 } from 'lucide-react';
 import styles from './CandidateManagement.module.css';
-import apiClient from '../services/apiClient';
+import { candidateService } from '../services/candidate.service';
 import toast from 'react-hot-toast';
 import { OrganizationListSkeleton } from '../components/Skeleton';
 import Pagination from '../components/Pagination/Pagination';
@@ -31,24 +29,21 @@ const CandidateManagement = () => {
     setLoading(true);
     try {
       const [statsRes, listRes] = await Promise.all([
-        apiClient.get('/admin/candidates/stats'),
-        apiClient.get('/admin/candidates', { 
-          params: { 
-            page: currentPage, 
-            search: searchTerm,
-            appliedStatus: appliedStatus,
-            limit: 10
-          } 
+        candidateService.getStats(),
+        candidateService.getCandidates({ 
+          page: currentPage, 
+          search: searchTerm,
+          appliedStatus: appliedStatus,
+          limit: 10
         })
       ]);
       
-      setStats(statsRes.data.data);
-      console.log('Candidate List Res:', listRes.data);
-      setCandidates(listRes.data.data.candidates || []);
+      setStats(statsRes.data);
+      setCandidates(listRes.data.candidates || []);
       setPagination({
-        total: listRes.data.data.total,
-        page: listRes.data.data.page,
-        totalPages: listRes.data.data.totalPages
+        total: listRes.data.total,
+        page: listRes.data.page,
+        totalPages: listRes.data.totalPages
       });
     } catch (error) {
       console.error('Error fetching candidate data:', error);

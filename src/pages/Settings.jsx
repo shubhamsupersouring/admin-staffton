@@ -12,7 +12,7 @@ import {
   Users,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import apiClient from '../services/apiClient';
+import { adminService } from '../services/admin.service';
 import { SettingsSkeleton, SkeletonBlock } from '../components/Skeleton';
 import styles from './Settings.module.css';
 
@@ -58,8 +58,8 @@ const Settings = () => {
   const fetchProfile = async () => {
     setProfileLoading(true);
     try {
-      const res = await apiClient.get('/admin/me');
-      const a = res.data?.data;
+      const res = await adminService.getCurrentAdmin();
+      const a = res.data;
       if (a) {
         setProfile({
           fullName: a.full_name || '',
@@ -117,8 +117,8 @@ const Settings = () => {
     }
 
     try {
-      const res = await apiClient.patch(`/admin/admins/${uid}`, payload);
-      const u = res.data?.data;
+      const res = await adminService.updateAdmin(uid, payload);
+      const u = res.data;
       if (u) {
         dispatch(
           updateSessionUser({
@@ -140,8 +140,8 @@ const Settings = () => {
   const fetchAdmins = async () => {
     setAdminsLoading(true);
     try {
-      const res = await apiClient.get('/admin/admins');
-      setAdmins(res.data?.data || []);
+      const res = await adminService.getAdmins();
+      setAdmins(res.data || []);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to load admins');
     } finally {
@@ -170,7 +170,7 @@ const Settings = () => {
     }
     setAdminSubmitting(true);
     try {
-      await apiClient.post('/admin/admins', adminForm);
+      await adminService.createAdmin(adminForm);
       toast.success('Admin added successfully');
       setAdminForm({ full_name: '', email: '', password: '', role: 'admin' });
       fetchAdmins();
@@ -207,7 +207,7 @@ const Settings = () => {
     }
     setAdminSubmitting(true);
     try {
-      await apiClient.patch(`/admin/admins/${adminId}`, payload);
+      await adminService.updateAdmin(adminId, payload);
       toast.success('Admin updated');
       cancelEdit();
       fetchAdmins();
@@ -228,7 +228,7 @@ const Settings = () => {
 
     setAdminSubmitting(true);
     try {
-      await apiClient.delete(`/admin/admins/${admin.id}`);
+      await adminService.deleteAdmin(admin.id);
       toast.success('Admin removed');
       if (editingAdminId === admin.id) cancelEdit();
       fetchAdmins();

@@ -8,11 +8,13 @@ import {
   Download,
   CheckCircle2,
   ExternalLink,
-  FileText
+  FileText,
+  ArrowUpRight,
+  Workflow
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './JobDetails.module.css';
-import apiClient from '../services/apiClient';
+import { jobService } from '../services/job.service';
 import { useBreadcrumbDetail } from '../contexts/BreadcrumbDetailContext';
 import { AdminDashboardSkeleton } from '../components/Skeleton';
 
@@ -26,8 +28,8 @@ const JobDetails = () => {
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const res = await apiClient.get(`/admin/jobs/${id}`);
-        setJob(res.data.data);
+        const data = await jobService.getJobDetails(id);
+        setJob(data.data);
       } catch (error) {
         toast.error('Failed to load job details');
         navigate('/jobs');
@@ -53,10 +55,10 @@ const JobDetails = () => {
     return val;
   };
 
-  const cleanList = (text) => {
-    if (!text) return [];
-    return text.split('\n').filter(l => l.trim().length > 0);
-  };
+  // const cleanList = (text) => {
+  //   if (!text) return [];
+  //   return text.split('\n').filter(l => l.trim().length > 0);
+  // };
 
   // Required documents from the job data or defaults
   const requirements = [
@@ -68,9 +70,13 @@ const JobDetails = () => {
   ];
 
   return (
-    <div className={styles.container}>
+    <div
+ 
+    >
       {/* Top Header */}
-      <div className={styles.topBar}>
+      <div className={styles.topBar}
+     
+      >
         <button className={styles.backBtn} onClick={() => navigate('/jobs')}>
           <ArrowLeft size={18} />
         </button>
@@ -120,13 +126,22 @@ const JobDetails = () => {
                 <span className={styles.footerLabel}>Experience</span>
                 <span className={styles.footerValue}>{job.experience_min_yrs || 0} - {job.experience_max_yrs || 5} years</span>
               </div>
-              <div className={styles.footerGroup}>
+              <div className={styles.footerGroup}
+             
+              >
                 <span className={styles.footerLabel}>Budget</span>
                 <span className={`${styles.footerValue} ${styles.budgetValue}`}>
                   ₹{job.salary_min ? (job.salary_min/1000).toFixed(0) : '—'}k - ₹{job.salary_max ? (job.salary_max/1000).toFixed(0) : '—'}k /month
                 </span>
               </div>
             </div>
+            {job.status !== 'draft' && (
+              <div className={styles.footerActions}>
+                <button className={styles.pipelineBtn} onClick={() => navigate(`/pipeline?jobId=${job.id}`)}>
+                  <Workflow size={18} /> Pipeline
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
@@ -143,9 +158,7 @@ const JobDetails = () => {
           <section className={`${styles.cardBlock} ${styles.infoSection}`}>
             <h3 className={styles.sectionTitle}>Responsibilities</h3>
             <ul className={styles.bulletList}>
-              {cleanList(job.responsibilities).map((req, i) => (
-                <li key={i}>{req.replace(/^[-\*•]\s*/, '')}</li>
-              ))}
+            
             </ul>
           </section>
         )}
@@ -155,9 +168,7 @@ const JobDetails = () => {
           <section className={`${styles.cardBlock} ${styles.infoSection}`}>
             <h3 className={styles.sectionTitle}>Qualifications</h3>
             <ul className={styles.bulletList}>
-              {cleanList(job.qualifications).map((qual, i) => (
-                <li key={i}>{qual.replace(/^[-\*•]\s*/, '')}</li>
-              ))}
+            
             </ul>
           </section>
         )}

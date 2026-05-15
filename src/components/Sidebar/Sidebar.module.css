@@ -8,7 +8,11 @@
   left: 0;
   top: 0;
   z-index: 100;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.sidebarCollapsed {
+  width: 70px !important;
 }
 
 .sidebarOpen {
@@ -22,6 +26,49 @@
 .sidebarLogo {
   padding: 22px 20px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 87px;
+}
+
+.sidebarCollapsed .sidebarLogo {
+  padding: 22px 10px 16px;
+  justify-content: center;
+}
+
+.collapseToggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.collapseToggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.sidebarCollapsed .collapseToggle {
+  position: absolute;
+  right: -12px;
+  top: 32px;
+  background: var(--navy);
+  z-index: 10;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebarCollapsed .logoImage {
+  width: 32px;
+  height: 32px;
+  object-position: center;
 }
 
 .logoText {
@@ -63,6 +110,10 @@
   padding: 8px 12px 4px;
 }
 
+.sidebarCollapsed .navLabel {
+  display: none;
+}
+
 .navItem {
   display: flex;
   align-items: center;
@@ -77,6 +128,15 @@
   transition: all 0.18s ease;
   user-select: none;
   text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebarCollapsed .navItem {
+  justify-content: center;
+  padding: 10px 0;
+  width: 44px;
+  margin: 0 auto 4px;
 }
 
 .navItem:hover {
@@ -103,6 +163,10 @@
   font-weight: 700;
   border-radius: 10px;
   padding: 1px 7px;
+}
+
+.sidebarCollapsed .navBadge {
+  display: none;
 }
 
 .sidebarFooter {
@@ -152,6 +216,19 @@
   font-size: 11px;
   color: rgba(255, 255, 255, 0.4);
   display: block;
+}
+
+.sidebarCollapsed .userInfo {
+  display: none;
+}
+
+.sidebarCollapsed .userChip {
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.sidebarCollapsed .logoutBtn {
+  display: none;
 }
 
 .logoutBtn {
