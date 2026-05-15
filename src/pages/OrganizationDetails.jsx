@@ -30,6 +30,7 @@ import { OrganizationDetailsSkeleton } from '../components/Skeleton';
 import { useBreadcrumbDetail } from '../contexts/BreadcrumbDetailContext';
 import Modal from '../components/Modal/Modal';
 import { memo } from 'react';
+import { formatCompensation } from '../utils/formatCompensation';
 
 const REJECTION_REASONS = [
   "Uploaded documents are unclear or not readable",
@@ -86,7 +87,7 @@ const JobCard = memo(({ job, organisation, navigate }) => {
           <div className={styles.footerGroup}>
             <span className={styles.footerLabel}>Budget</span>
             <span className={`${styles.footerValue} ${styles.budgetValue}`}>
-              ₹{(job.salary_min/1000).toFixed(0)}k - ₹{(job.salary_max/1000).toFixed(0)}k /month
+              {formatCompensation(job.salary_min)} - {formatCompensation(job.salary_max, { withCurrencyPrefix: false })} /month
             </span>
           </div>
         </div>

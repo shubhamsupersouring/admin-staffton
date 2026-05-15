@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+  import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateSessionUser } from '../features/auth/authSlice';
 import {
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminService } from '../services/admin.service';
-import { SettingsSkeleton, SkeletonBlock } from '../components/Skeleton';
+import { SettingsSkeleton } from '../components/Skeleton';
 import styles from './Settings.module.css';
 
 function formatRoleLabel(role) {
