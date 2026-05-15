@@ -17,6 +17,7 @@ import styles from './JobDetails.module.css';
 import { jobService } from '../services/job.service';
 import { useBreadcrumbDetail } from '../contexts/BreadcrumbDetailContext';
 import { AdminDashboardSkeleton } from '../components/Skeleton';
+import { formatCompensation } from '../utils/formatCompensation';
 
 const JobDetails = () => {
   const { id } = useParams();
@@ -131,7 +132,7 @@ const JobDetails = () => {
               >
                 <span className={styles.footerLabel}>Budget</span>
                 <span className={`${styles.footerValue} ${styles.budgetValue}`}>
-                  ₹{job.salary_min ? (job.salary_min/1000).toFixed(0) : '—'}k - ₹{job.salary_max ? (job.salary_max/1000).toFixed(0) : '—'}k /month
+                  {formatCompensation(job.salary_min)} - {formatCompensation(job.salary_max, { withCurrencyPrefix: false })} /month
                 </span>
               </div>
             </div>

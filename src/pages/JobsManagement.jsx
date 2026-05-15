@@ -17,6 +17,7 @@ import { jobService } from '../services/job.service';
 import Modal from '../components/Modal/Modal';
 import { AdminDashboardSkeleton } from '../components/Skeleton';
 import Pagination from '../components/Pagination/Pagination';
+import { formatCompensation } from '../utils/formatCompensation';
 
 const JobCard = ({ job, onViewDetails }) => {
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ const JobCard = ({ job, onViewDetails }) => {
             <div className={styles.statBox}>
               <span className={styles.statBoxLabel}>Budget</span>
               <span className={`${styles.statBoxValue} ${styles.budgetValue}`}>
-                ₹{job.salary_min ? (job.salary_min/1000).toFixed(0) + 'k' : '—'} - ₹{job.salary_max ? (job.salary_max/1000).toFixed(0) + 'k' : '—'} /month
+                {formatCompensation(job.salary_min)} - {formatCompensation(job.salary_max, { withCurrencyPrefix: false })} /month
               </span>
             </div>
           </div>
@@ -190,7 +191,7 @@ const FilterModal = ({ isOpen, onClose, filters, setFilters, onApply, onReset })
 
 const ITEMS_PER_PAGE = 10;
 
-const JobsManagement = () => {
+const   JobsManagement = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
