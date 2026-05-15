@@ -15,10 +15,19 @@ export const candidateService = {
   },
 
   /**
-   * Get candidate-specific statistics
+   * Get statistics for all candidates
    */
   getStats: async () => {
     const response = await apiClient.get(API_ENDPOINTS.CANDIDATES.STATS);
+    return response.data;
+  },
+
+  /**
+   * Get detailed information for a specific candidate
+   * @param {string} id 
+   */
+  getCandidateDetails: async (id) => {
+    const response = await apiClient.get(API_ENDPOINTS.ADMIN.CANDIDATE_DETAIL(id));
     return response.data;
   }
 };

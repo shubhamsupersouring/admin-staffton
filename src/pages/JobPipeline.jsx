@@ -12,10 +12,13 @@ import {
   Lock,
   Check,
   X,
-  FileText
+  FileText,
+  Mail,
+  Phone
 } from 'lucide-react';
 import styles from './JobPipeline.module.css';
 import { jobService } from '../services/job.service';
+import { candidateService } from '../services/candidate.service';
 import toast from 'react-hot-toast';
 
 const JobPipeline = () => {
@@ -27,6 +30,11 @@ const JobPipeline = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, page: 1, pageSize: 10, totalPages: 1 });
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   const tabs = [
     'Applied',
@@ -111,6 +119,26 @@ const JobPipeline = () => {
     return date.toLocaleDateString();
   };
 
+  const handleViewProfile = async (candidateId) => {
+    setModalLoading(true);
+    setIsModalOpen(true);
+    try {
+      const response = await candidateService.getCandidateDetails(candidateId);
+      if (response.success) {
+        setSelectedCandidate(response.data);
+      } else {
+        toast.error(response.message || 'Failed to fetch candidate details');
+        setIsModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Error fetching candidate details:', error);
+      toast.error('Something went wrong');
+      setIsModalOpen(false);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
   return (
     <div>
       {/* Header */}
@@ -189,7 +217,10 @@ const JobPipeline = () => {
                   </div>
 
                   <div className={styles.actions}>
-                    <button className={styles.viewBtn} disabled>
+                    <button 
+                      className={styles.viewBtn} 
+                      onClick={() => handleViewProfile(candidate.candidate_id)}
+                    >
                       <Eye size={18} />
                       View Profile
                     </button>
@@ -233,6 +264,148 @@ const JobPipeline = () => {
           </div>
         )}
       </div>
+
+      {/* Candidate Detail Modal */}
+      {isModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
+          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <button className={styles.modalClose} onClick={() => setIsModalOpen(false)}>
+              <X size={20} />
+            </button>
+
+            {modalLoading ? (
+              <div className={styles.loadingState}>
+                <Clock className={styles.spinIcon} size={40} />
+                <p>Fetching candidate details...</p>
+              </div>
+            ) : selectedCandidate ? (
+              <div className={styles.modalBody}>
+                <div className={styles.candidateHeader}>
+                  <div className={styles.headerFlex}>
+                    {selectedCandidate.profilePhoto && (
+                      <img 
+                        src={selectedCandidate.profilePhoto} 
+                        alt={selectedCandidate.fullName} 
+                        className={styles.modalAvatar}
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                    )}
+                    <div className={styles.headerInfo}>
+                      <h2>{selectedCandidate.fullName}</h2>
+                      <p className={styles.modalRole}>{selectedCandidate.role || 'No Role Specified'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.detailCards}>
+                  <div className={styles.detailCard}>
+                    <div className={styles.detailCardIcon}>
+                      <Briefcase size={16} />
+                      Experience
+                    </div>
+                    <div className={styles.detailCardValue}>
+                      {selectedCandidate.experience || `${selectedCandidate.years || 0} yrs experience`}
+                    </div>
+                  </div>
+
+                  <div className={styles.detailCard}>
+                    <div className={styles.detailCardIcon}>
+                      <MapPin size={16} />
+                      Location
+                    </div>
+                    <div className={styles.detailCardValue}>
+                      {selectedCandidate.location || 'N/A'}
+                    </div>
+                  </div>
+
+                  <div className={styles.detailCard}>
+                    <div className={styles.detailCardIcon}>
+                      <Calendar size={16} />
+                      Availability
+                    </div>
+                    <div className={styles.detailCardValue}>
+                      {selectedCandidate.availability || 'Immediately Available'}
+                    </div>
+                  </div>
+
+                  <div className={styles.detailCard}>
+                    <div className={styles.detailCardIcon}>
+                      <LayoutList size={16} />
+                      Last Workplace
+                    </div>
+                    <div className={styles.detailCardValue}>
+                      {selectedCandidate.lastWorkplace || 'Not Provided'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.section}>
+                  <h4 className={styles.sectionTitle}>Professional Summary</h4>
+                  <p className={styles.summaryText}>
+                    {selectedCandidate.about || 'Dedicated professional with experience in their field.'}
+                  </p>
+                </div>
+
+                {selectedCandidate.skills && selectedCandidate.skills.length > 0 && (
+                  <div className={styles.section}>
+                    <h4 className={styles.sectionTitle}>Skills</h4>
+                    <div className={styles.skillsWrapper}>
+                      {selectedCandidate.skills.map((skill, index) => (
+                        <span key={index} className={styles.skillTag}>{skill}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className={styles.section}>
+                  <h4 className={styles.sectionTitle}>Contact Details</h4>
+                  <div className={styles.contactInfo}>
+                    <div className={styles.contactItem}>
+                      <Mail size={16} />
+                      {selectedCandidate.email}
+                    </div>
+                    <div className={styles.contactItem}>
+                      <Phone size={16} />
+                      {selectedCandidate.mobile}
+                    </div>
+                  </div>
+                </div>
+
+                {selectedCandidate.documents && selectedCandidate.documents.length > 0 && (
+                  <div className={styles.section}>
+                    <h4 className={styles.sectionTitle}>Documents</h4>
+                    <div className={styles.docsList}>
+                      {selectedCandidate.documents.map((doc) => (
+                        <a 
+                          key={doc.id} 
+                          href={doc.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className={styles.docItem}
+                        >
+                          <div className={styles.docIcon}>
+                            <FileText size={18} />
+                          </div>
+                          <div className={styles.docDetails}>
+                            <span className={styles.docName}>{doc.name}</span>
+                            <span className={styles.docType}>{doc.type}</span>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            ) : (
+              <div className={styles.emptyState}>
+                <AlertCircle size={40} />
+                <p>Failed to load candidate details.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
