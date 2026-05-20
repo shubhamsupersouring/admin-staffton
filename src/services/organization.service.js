@@ -51,6 +51,26 @@ export const organizationService = {
   },
 
   /**
+   * Suspend an organization
+   * @param {string} id 
+   * @param {Object} data - { reason }
+   */
+  suspendOrganization: async (id, data) => {
+    const response = await apiClient.patch(API_ENDPOINTS.ORGANIZATIONS.SUSPEND(id), data);
+    return response.data;
+  },
+
+  /**
+   * Reactivate an organization
+   * @param {string} id 
+   * @param {Object} data - { reason }
+   */
+  reactivateOrganization: async (id, data) => {
+    const response = await apiClient.patch(API_ENDPOINTS.ORGANIZATIONS.REACTIVATE(id), data);
+    return response.data;
+  },
+
+  /**
    * Send an invitation to a new organization
    * @param {Object} data - { org_name, contact_name, contact_email }
    */
