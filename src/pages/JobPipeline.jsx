@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  LayoutList, 
-  MapPin, 
-  Briefcase, 
-  Calendar, 
-  Clock, 
-  Eye, 
+import {
+  ArrowLeft,
+  LayoutList,
+  MapPin,
+  Briefcase,
+  Calendar,
+  Clock,
+  Eye,
   AlertCircle,
   Lock,
   Check,
   X,
   FileText,
   Mail,
-  Phone
+  Phone,
+  MessageSquare
 } from 'lucide-react';
 import styles from './JobPipeline.module.css';
 import { jobService } from '../services/job.service';
@@ -25,7 +26,7 @@ const JobPipeline = () => {
   const [searchParams] = useSearchParams();
   const jobId = searchParams.get('jobId');
   const navigate = useNavigate();
-  
+
   const [activeTab, setActiveTab] = useState('Applied');
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +36,144 @@ const JobPipeline = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
+
+  // Chat Drawer State
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatCandidate, setChatCandidate] = useState(null);
+  const [chatMessages, setChatMessages] = useState({});
+
+  const getInitialMockMessages = (candidate) => {
+    const name = candidate.full_name || 'Candidate';
+    const role = candidate.primary_role || 'Staff Nurse';
+    const stage = activeTab;
+
+    const baseMessages = [
+      {
+        id: 1,
+        text: `Hello, I'm interested in the ${role} position.`,
+        sender: 'candidate',
+        time: '10:30 AM',
+      },
+      {
+        id: 2,
+        text: `Hi ${name}, thank you for your interest! We have received your application.`,
+        sender: 'admin',
+        time: '10:35 AM',
+      }
+    ];
+
+    if (stage === 'Applied') {
+      baseMessages.push({
+        id: 3,
+        text: `Please let me know if you need any additional documents from my side.`,
+        sender: 'candidate',
+        time: '11:00 AM'
+      });
+    } else if (stage === 'Under Review') {
+      baseMessages.push({
+        id: 3,
+        text: `We are currently reviewing your qualifications. We will get back to you shortly.`,
+        sender: 'admin',
+        time: 'Yesterday, 3:15 PM'
+      });
+      baseMessages.push({
+        id: 4,
+        text: `Sure, thank you for the update. Looking forward to hearing from you.`,
+        sender: 'candidate',
+        time: 'Yesterday, 3:20 PM'
+      });
+    } else if (stage === 'Shortlisted') {
+      baseMessages.push({
+        id: 3,
+        text: `Congratulations! You have been shortlisted for this position. The HR team will contact you shortly for the next steps.`,
+        sender: 'admin',
+        time: '16:47'
+      });
+      baseMessages.push({
+        id: 4,
+        text: `hlo`,
+        sender: 'candidate',
+        time: '17:01',
+        status: 'read'
+      });
+      baseMessages.push({
+        id: 5,
+        text: `hmm lets see for the jobs`,
+        sender: 'candidate',
+        time: '17:02',
+        status: 'read'
+      });
+    } else if (stage === 'Interview') {
+      baseMessages.push({
+        id: 3,
+        text: `We would like to schedule an interview with you. Are you available this Thursday at 2 PM?`,
+        sender: 'admin',
+        time: 'May 18, 2:00 PM'
+      });
+      baseMessages.push({
+        id: 4,
+        text: `Yes, Thursday at 2 PM works perfectly for me. I've received the calendar invite.`,
+        sender: 'candidate',
+        time: 'May 18, 2:15 PM'
+      });
+    } else if (stage === 'Offered') {
+      baseMessages.push({
+        id: 3,
+        text: `We are pleased to extend an offer to you. The offer letter has been sent to your email. Please review and sign it.`,
+        sender: 'admin',
+        time: 'May 19, 10:00 AM'
+      });
+      baseMessages.push({
+        id: 4,
+        text: `Thank you so much! I am thrilled to receive the offer. I will review it today.`,
+        sender: 'candidate',
+        time: 'May 19, 10:15 AM'
+      });
+    } else if (stage === 'Hired') {
+      baseMessages.push({
+        id: 3,
+        text: `Welcome to the team, ${name}! Your onboarding starts next Monday.`,
+        sender: 'admin',
+        time: 'May 19, 11:00 AM'
+      });
+      baseMessages.push({
+        id: 4,
+        text: `Thank you! Excited to join and get started!`,
+        sender: 'candidate',
+        time: 'May 19, 11:05 AM'
+      });
+    } else if (stage === 'Rejected') {
+      baseMessages.push({
+        id: 3,
+        text: `Thank you for taking the time to interview with us. Unfortunately, we've decided to move forward with other candidates.`,
+        sender: 'admin',
+        time: 'May 17, 4:00 PM'
+      });
+      baseMessages.push({
+        id: 4,
+        text: `Thank you for the update. I appreciate the opportunity.`,
+        sender: 'candidate',
+        time: 'May 17, 4:30 PM'
+      });
+    }
+
+    return baseMessages;
+  };
+
+  const handleOpenChat = (candidate) => {
+    setChatCandidate(candidate);
+    setIsChatOpen(true);
+
+    const candidateKey = candidate.application_id || candidate.candidate_id;
+    if (!chatMessages[candidateKey]) {
+      setChatMessages(prev => ({
+        ...prev,
+        [candidateKey]: getInitialMockMessages(candidate)
+      }));
+    }
+  };
+
+
 
   const tabs = [
     'Applied',
@@ -58,7 +197,7 @@ const JobPipeline = () => {
 
   const fetchCandidates = useCallback(async () => {
     if (!jobId) return;
-    
+
     setLoading(true);
     try {
       const response = await jobService.getPipeline(jobId, {
@@ -66,9 +205,9 @@ const JobPipeline = () => {
         page: pagination.page,
         pageSize: pagination.pageSize
       });
-      
+
       console.log("Pipeline API Response:", response);
-      
+
       if (response.success && response.data) {
         setCandidates(response.data.candidates || []);
         setPagination({
@@ -112,7 +251,7 @@ const JobPipeline = () => {
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return '1 day ago';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -144,7 +283,7 @@ const JobPipeline = () => {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <button 
+          <button
             onClick={() => navigate(-1)}
             className={styles.backBtn}
             aria-label="Back"
@@ -197,15 +336,15 @@ const JobPipeline = () => {
             </div>
           ) : candidates.length > 0 ? (
             candidates.map((candidate) => (
-              <article 
-                key={candidate.application_id} 
+              <article
+                key={candidate.application_id}
                 className={styles.card}
               >
                 {/* Card Top */}
                 <div className={styles.cardTop}>
                   <div className={styles.candidateInfo}>
-                    <div 
-                      className={styles.avatar} 
+                    <div
+                      className={styles.avatar}
                       style={{ backgroundColor: getRandomColor(candidate.candidate_id) }}
                     >
                       {getInitials(candidate.full_name)}
@@ -217,12 +356,19 @@ const JobPipeline = () => {
                   </div>
 
                   <div className={styles.actions}>
-                    <button 
-                      className={styles.viewBtn} 
+                    <button
+                      className={styles.viewBtn}
                       onClick={() => handleViewProfile(candidate.candidate_id)}
                     >
                       <Eye size={18} />
                       View Profile
+                    </button>
+                    <button
+                      className={`${styles.chatBtn} text-[#0d9488]  `}
+                      onClick={() => handleOpenChat(candidate)}
+                      title="Chat with Candidate"
+                    >
+                      <MessageSquare size={18} />
                     </button>
                   </div>
                 </div>
@@ -283,9 +429,9 @@ const JobPipeline = () => {
                 <div className={styles.candidateHeader}>
                   <div className={styles.headerFlex}>
                     {selectedCandidate.profilePhoto && (
-                      <img 
-                        src={selectedCandidate.profilePhoto} 
-                        alt={selectedCandidate.fullName} 
+                      <img
+                        src={selectedCandidate.profilePhoto}
+                        alt={selectedCandidate.fullName}
                         className={styles.modalAvatar}
                         onError={(e) => e.target.style.display = 'none'}
                       />
@@ -376,11 +522,11 @@ const JobPipeline = () => {
                     <h4 className={styles.sectionTitle}>Documents</h4>
                     <div className={styles.docsList}>
                       {selectedCandidate.documents.map((doc) => (
-                        <a 
-                          key={doc.id} 
-                          href={doc.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          key={doc.id}
+                          href={doc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className={styles.docItem}
                         >
                           <div className={styles.docIcon}>
@@ -403,6 +549,61 @@ const JobPipeline = () => {
                 <p>Failed to load candidate details.</p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Chat Drawer Sidebar */}
+      {isChatOpen && chatCandidate && (
+        <div className={styles.drawerOverlay} onClick={() => setIsChatOpen(false)}>
+          <div className={styles.drawer} onClick={e => e.stopPropagation()}>
+            {/* Drawer Header */}
+            <header className={styles.drawerHeader}>
+              <div className={styles.drawerCandidateInfo}>
+                <div
+                  className={styles.drawerAvatar}
+                  style={{ backgroundColor: getRandomColor(chatCandidate.candidate_id) }}
+                >
+                  {getInitials(chatCandidate.full_name)}
+                </div>
+                <div className={styles.drawerNameWrapper}>
+                  <h3>{chatCandidate.full_name}</h3>
+                  <span className={styles.drawerStatusText}>Active Chat</span>
+                </div>
+              </div>
+              <button className={styles.drawerClose} onClick={() => setIsChatOpen(false)}>
+                <X size={20} />
+              </button>
+            </header>
+
+            {/* Drawer Messages Body */}
+            <div className={styles.drawerBody}>
+              <div className={styles.drawerMessages}>
+                {(chatMessages[chatCandidate.application_id || chatCandidate.candidate_id] || []).map((msg) => {
+                  const isSelf = msg.sender === 'admin';
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`${styles.messageWrapper} ${isSelf ? styles.messageSelf : styles.messageOther}`}
+                    >
+                      <div className={styles.messageBubble}>
+                        <p>{msg.text}</p>
+                        <div className={styles.messageMeta}>
+                          <span>{msg.time}</span>
+                          {isSelf && (
+                            <span className={styles.checkIcon}>
+                              <Check size={12} />
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Drawer Body Only */}
           </div>
         </div>
       )}

@@ -23,3 +23,4 @@ export const formatCompensation = (amount, opts) => {
 
   return `${prefix}${value} ${unit}`.trim()
 }
+  

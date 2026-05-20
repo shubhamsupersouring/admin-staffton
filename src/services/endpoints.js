@@ -22,6 +22,8 @@ export const API_ENDPOINTS = {
     INVITATION_DETAIL: (id) => `/admin/invitations/${id}`,
     VERIFICATIONS: '/admin/verifications',
     VERIFICATION_DETAIL: (id) => `/admin/verifications/${id}`,
+    SUSPEND: (id) => `/admin/organizations/${id}/suspend`,
+    REACTIVATE: (id) => `/admin/organizations/${id}/reactivate`,
   },
   JOBS: {
     LIST: '/admin/jobs',
