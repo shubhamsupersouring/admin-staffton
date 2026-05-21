@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Building, 
-  Users, 
-  Briefcase, 
+import {
+  Building,
+  Users,
+  Briefcase,
   Activity,
-  ShieldCheck, 
+  ShieldCheck,
   Plus,
   ShieldAlert,
   MapPin,
@@ -37,19 +37,18 @@ const StatCard = ({ icon, value, label, sub, colorClass, onClick }) => (
 const PIE_COLORS = ['#0FB8A4', '#3B82F6', '#F59E0B', '#8B5CF6', '#10B981', '#EF4444', '#9CA3AF'];
 
 const PieChartCard = ({ title, subtitle, data }) => {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
   const safeData = Array.isArray(data) ? data.filter((item) => Number(item.value) > 0) : [];
   const total = safeData.reduce((sum, item) => sum + Number(item.value || 0), 0);
-  const chartBackground = total
-    ? `conic-gradient(${safeData
-        .map((item, index) => {
-          const value = Number(item.value || 0);
-          const start = safeData.slice(0, index).reduce((sum, curr) => sum + Number(curr.value || 0), 0);
-          const startPct = (start / total) * 100;
-          const endPct = ((start + value) / total) * 100;
-          return `${PIE_COLORS[index % PIE_COLORS.length]} ${startPct}% ${endPct}%`;
-        })
-        .join(', ')})`
-    : '#E5E7EB';
+
+  // SVG dimensions
+  const cx = 100;
+  const cy = 100;
+  const R = 80; // Outer radius
+  const r = 44; // Inner radius (donut hole)
+
+  const angleToRad = (deg) => (deg - 90) * Math.PI / 180;
 
   return (
     <div className={styles.card}>
@@ -61,18 +60,101 @@ const PieChartCard = ({ title, subtitle, data }) => {
         <p className={styles.chartSubtitle}>{subtitle}</p>
         {total > 0 ? (
           <div className={styles.pieWrap}>
-            <div className={styles.pieChart} style={{ background: chartBackground }}>
-              <div className={styles.pieHole} />
+            <div className={styles.pieChart} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="100%" height="100%" viewBox="0 0 200 200" style={{ overflow: 'visible' }}>
+                <g>
+                  {safeData.length === 1 ? (
+                    // Single item 100% case
+                    (() => {
+                      const color = PIE_COLORS[0];
+                      const isHovered = hoveredIndex === 0;
+                      return (
+                        <circle
+                          cx={cx}
+                          cy={cy}
+                          r={R}
+                          fill={color}
+                          onMouseEnter={() => setHoveredIndex(0)}
+                          onMouseLeave={() => setHoveredIndex(null)}
+                          style={{
+                            transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                            transformOrigin: 'center',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      );
+                    })()
+                  ) : (
+                    // Multi-item slices
+                    safeData.map((item, index) => {
+                      const value = Number(item.value || 0);
+                      const start = safeData.slice(0, index).reduce((sum, curr) => sum + Number(curr.value || 0), 0);
+                      const startAngle = (start / total) * 360;
+                      const endAngle = ((start + value) / total) * 360;
+
+                      const startRad = angleToRad(startAngle);
+                      const endRad = angleToRad(endAngle);
+
+                      const x1 = cx + R * Math.cos(startRad);
+                      const y1 = cy + R * Math.sin(startRad);
+                      const x2 = cx + R * Math.cos(endRad);
+                      const y2 = cy + R * Math.sin(endRad);
+
+                      const largeArcFlag = (endAngle - startAngle) > 180 ? 1 : 0;
+                      const d = `M ${cx} ${cy} L ${x1} ${y1} A ${R} ${R} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+
+                      const midAngle = (startAngle + endAngle) / 2;
+                      const midRad = angleToRad(midAngle);
+                      const isHovered = hoveredIndex === index;
+                      const shiftDist = 6;
+                      const dx = Math.cos(midRad) * shiftDist;
+                      const dy = Math.sin(midRad) * shiftDist;
+
+                      return (
+                        <path
+                          key={`${item.name}-${index}`}
+                          d={d}
+                          fill={PIE_COLORS[index % PIE_COLORS.length]}
+                          onMouseEnter={() => setHoveredIndex(index)}
+                          onMouseLeave={() => setHoveredIndex(null)}
+                          style={{
+                            transform: isHovered ? `translate(${dx}px, ${dy}px)` : 'translate(0px, 0px)',
+                            transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      );
+                    })
+                  )}
+                  {/* Central hole to make it a donut chart */}
+                  <circle cx={cx} cy={cy} r={r} fill="var(--white)" />
+                </g>
+              </svg>
             </div>
             <div className={styles.legendList}>
               {safeData.map((item, index) => {
                 const value = Number(item.value || 0);
                 const percent = Math.round((value / total) * 100);
+                const isHovered = hoveredIndex === index;
+                const dotColor = PIE_COLORS[index % PIE_COLORS.length];
                 return (
-                  <div key={`${item.name}-${index}`} className={styles.legendItem}>
+                  <div
+                    key={`${item.name}-${index}`}
+                    className={styles.legendItem}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    style={{
+                      transform: isHovered ? 'scale(1.03)' : 'scale(1)',
+                      borderColor: isHovered ? dotColor : 'var(--border-light)',
+                      backgroundColor: isHovered ? `${dotColor}10` : 'transparent',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      cursor: 'pointer'
+                    }}
+                  >
                     <span
                       className={styles.legendDot}
-                      style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                      style={{ backgroundColor: dotColor }}
                     />
                     <span className={styles.legendName}>{item.name}</span>
                     <span className={styles.legendValue}>{value}</span>
@@ -178,11 +260,11 @@ const AdminDashboard = () => {
     (Array.isArray(stats.dailyActiveUsersTrend) && stats.dailyActiveUsersTrend.length > 0
       ? stats.dailyActiveUsersTrend
       : Array.isArray(stats.registrationTrend)
-      ? stats.registrationTrend.map((point) => ({
+        ? stats.registrationTrend.map((point) => ({
           label: point.date,
           value: Number(point.candidates || 0) + Number(point.organizations || 0),
         }))
-      : []
+        : []
     ).slice(-7);
 
   return (
@@ -210,43 +292,39 @@ const AdminDashboard = () => {
 
       <div className={styles.statsWrapper}>
         <div className={styles.statsGrid}>
-          <StatCard 
-            icon={<Building size={19} />} 
-            value={stats.organisations || 0} 
-            label="Registered Organizations" 
+          <StatCard
+            icon={<Building size={19} />}
+            value={stats.organisations || 0}
+            label="Registered Organizations"
             sub="Total orgs onboarded"
             colorClass={styles.iconTeal}
             onClick={() => navigate('/organizations')}
           />
-          <StatCard 
-            icon={<ShieldAlert size={19} />} 
-            value={stats.pendingVerifications || 0} 
-            label="Pending Verifications" 
+          <StatCard
+            icon={<ShieldAlert size={19} />}
+            value={stats.pendingVerifications || 0}
+            label="Pending Verifications"
             sub="Awaiting Super Admin approval"
             colorClass={styles.iconPending}
             onClick={() => navigate('/organizations')}
           />
-          <StatCard 
-            icon={<Users size={19} />} 
-            value={stats.candidates || 0} 
-            label="Total Candidates" 
+          <StatCard
+            icon={<Users size={19} />}
+            value={stats.candidates || 0}
+            label="Total Candidate"
             sub="Registered on platform"
             colorClass={styles.iconActive}
+            onClick={() => navigate('/candidates')}
           />
-          <StatCard 
-            icon={<Briefcase size={19} />} 
-            value={stats.jobs || 0} 
-            label="Live Job Postings" 
+          <StatCard
+            icon={<Briefcase size={19} />}
+            value={stats.jobs || 0}
+            label="Live Job Postings"
             sub="Currently accepting applications"
             colorClass={styles.iconBlue}
+            onClick={() => navigate('/jobs')}
           />
-          <StatCard 
-            icon={<Activity size={19} />} 
-            value={stats.dauYesterday || 0} 
-            label="Yesterday Active Users" 
-            sub="Daily Active Users (before today)"
-            colorClass={styles.iconTeal}
-          />
+
         </div>
       </div>
 
@@ -301,8 +379,8 @@ const AdminDashboard = () => {
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
                     <div className={styles.verifDate}>{new Date(org.created_at).toLocaleDateString()}</div>
                     <span className={styles.badgePending}>PENDING</span>
-                    <button 
-                      className={styles.reviewBtn} 
+                    <button
+                      className={styles.reviewBtn}
                       onClick={() => navigate(`/organizations/${org.id}`)}
                     >
                       Review Docs
@@ -326,54 +404,54 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <Modal 
-        isOpen={isInviteModalOpen} 
-        onClose={() => setIsInviteModalOpen(false)} 
+      <Modal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
         title="Invite New Organization"
       >
         <FormOverlayContainer>
           <FormSubmitOverlay show={submitting} message="Sending invitation..." />
-        <form onSubmit={handleInvite} className={styles.modalForm}>
-          <div className={styles.formGroup}>
-            <label>Organization Name</label>
-            <input 
-              type="text" 
-              placeholder="e.g. Apollo Hospitals" 
-              required 
-              maxLength={80}
-              value={formData.org_name}
-              onChange={(e) => setFormData({...formData, org_name: e.target.value})}
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label>Contact Name</label>
-            <input 
-              type="text" 
-              placeholder="e.g. John Smith" 
-              required 
-              maxLength={80}
-              value={formData.contact_name}
-              onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label>Contact Email</label>
-            <input 
-              type="email" 
-              placeholder="e.g. admin@apollo.com" 
-              required 
-              maxLength={80}
-              value={formData.contact_email}
-              onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
-            />
-          </div>
-          <div className={styles.modalActions}>
-            <button type="button" className={styles.modalCancel} onClick={() => setIsInviteModalOpen(false)}>Cancel</button>
-            <button type="submit" className={styles.modalSubmit} disabled={submitting}>
-              {submitting ? 'Sending...' : 'Send Invitation'}
-            </button>
-          </div>
-        </form>
+          <form onSubmit={handleInvite} className={styles.modalForm}>
+            <div className={styles.formGroup}>
+              <label>Organization Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Apollo Hospitals"
+                required
+                maxLength={80}
+                value={formData.org_name}
+                onChange={(e) => setFormData({ ...formData, org_name: e.target.value })}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label>Contact Name</label>
+              <input
+                type="text"
+                placeholder="e.g. John Smith"
+                required
+                maxLength={80}
+                value={formData.contact_name}
+                onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label>Contact Email</label>
+              <input
+                type="email"
+                placeholder="e.g. admin@apollo.com"
+                required
+                maxLength={80}
+                value={formData.contact_email}
+                onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
+              />
+            </div>
+            <div className={styles.modalActions}>
+              <button type="button" className={styles.modalCancel} onClick={() => setIsInviteModalOpen(false)}>Cancel</button>
+              <button type="submit" className={styles.modalSubmit} disabled={submitting}>
+                {submitting ? 'Sending...' : 'Send Invitation'}
+              </button>
+            </div>
+          </form>
         </FormOverlayContainer>
       </Modal>
     </div>

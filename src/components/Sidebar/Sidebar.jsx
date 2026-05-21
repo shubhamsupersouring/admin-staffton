@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
   LogOut,
   Building,
   Layers,
@@ -19,9 +19,10 @@ import logoImg from '../../assets/images/inner-logo.png';
 import miniLogo from '../../assets/svg/logo.svg';
 import apiClient from '../../services/apiClient';
 
-const Sidebar = ({ isOpen = false, onClose = () => {}, isCollapsed = false, onToggleCollapse = () => {} }) => {
+const Sidebar = ({ isOpen = false, onClose = () => { }, isCollapsed = false, onToggleCollapse = () => { } }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useSelector((state) => state.auth.user);
   const [organizationsCount, setOrganizationsCount] = useState(null);
 
@@ -43,7 +44,7 @@ const Sidebar = ({ isOpen = false, onClose = () => {}, isCollapsed = false, onTo
 
   const userName = user?.full_name || user?.name || user?.email || 'User';
   const rawRole = user?.role || localStorage.getItem('userType') || 'admin';
-  
+
   const userRoleLabel = String(rawRole)
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (m) => m.toUpperCase());
@@ -65,7 +66,7 @@ const Sidebar = ({ isOpen = false, onClose = () => {}, isCollapsed = false, onTo
         name: 'Organizations',
         icon: <Building size={18} />,
         path: '/organizations',
-        badge: organizationsCount,
+        // badge: organizationsCount,
       },
       {
         name: 'Jobs',
@@ -92,10 +93,10 @@ const Sidebar = ({ isOpen = false, onClose = () => {}, isCollapsed = false, onTo
   );
 
   const systemItems = [
-    { 
-      name: 'Settings & Profile', 
-      icon: <Settings size={18} />, 
-      path: '/settings' 
+    {
+      name: 'Settings & Profile',
+      icon: <Settings size={18} />,
+      path: '/settings'
     },
   ];
 
@@ -112,9 +113,9 @@ const Sidebar = ({ isOpen = false, onClose = () => {}, isCollapsed = false, onTo
               <img src={isCollapsed ? miniLogo : logoImg} alt="Staffton Logo" className={styles.logoImage} />
             </div>
           </div>
-          <button 
+          <button
             className={styles.collapseToggle}
-            style={{marginLeft:"20px"}} 
+            style={{ marginLeft: "20px" }}
             onClick={onToggleCollapse}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
@@ -129,9 +130,10 @@ const Sidebar = ({ isOpen = false, onClose = () => {}, isCollapsed = false, onTo
               key={item.name}
               to={item.path}
               onClick={onClose}
-              className={({ isActive }) => 
-                isActive ? `${styles.navItem} ${styles.active}` : styles.navItem
-              }
+              className={({ isActive }) => {
+                const isCustomActive = isActive || (item.path === '/jobs' && (location.pathname === '/pipeline' || location.pathname.startsWith('/pipeline/')));
+                return isCustomActive ? `${styles.navItem} ${styles.active}` : styles.navItem;
+              }}
               title={isCollapsed ? item.name : ''}
             >
               {item.icon}
@@ -148,7 +150,7 @@ const Sidebar = ({ isOpen = false, onClose = () => {}, isCollapsed = false, onTo
               key={item.name}
               to={item.path}
               onClick={onClose}
-              className={({ isActive }) => 
+              className={({ isActive }) =>
                 isActive ? `${styles.navItem} ${styles.active}` : styles.navItem
               }
               title={isCollapsed ? item.name : ''}

@@ -89,7 +89,7 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
@@ -134,11 +134,30 @@
 }
 
 /* Icon Variations - Premium Tints */
-.iconTeal { background: #e6fffa; color: #0d9488; }
-.iconPending { background: #fffaf0; color: #d97706; }
-.iconActive { background: #f0fff4; color: #16a34a; }
-.iconBlue { background: #ebf8ff; color: #2563eb; }
-.iconRed { background: #fff5f5; color: #dc2626; }
+.iconTeal {
+  background: #e6fffa;
+  color: #0d9488;
+}
+
+.iconPending {
+  background: #fffaf0;
+  color: #d97706;
+}
+
+.iconActive {
+  background: #f0fff4;
+  color: #16a34a;
+}
+
+.iconBlue {
+  background: #ebf8ff;
+  color: #2563eb;
+}
+
+.iconRed {
+  background: #fff5f5;
+  color: #dc2626;
+}
 
 .statContent {
   display: flex;
@@ -222,7 +241,7 @@
   margin-top: 12px;
 }
 
-.chartsGrid > :last-child {
+.chartsGrid> :last-child {
   grid-column: 1 / -1;
 }
 
@@ -622,7 +641,7 @@
     grid-template-columns: 1fr;
   }
 
-  .chartsGrid > :last-child {
+  .chartsGrid> :last-child {
     grid-column: auto;
   }
 
@@ -682,7 +701,7 @@
     width: 100%;
   }
 
-  .verifItem > div:last-child {
+  .verifItem>div:last-child {
     width: 100%;
     align-items: stretch !important;
     padding-top: 12px;
@@ -695,4 +714,3 @@
     height: 40px;
   }
 }
-
