@@ -20,6 +20,7 @@ import {
 import styles from './JobPipeline.module.css';
 import { jobService } from '../services/job.service';
 import { candidateService } from '../services/candidate.service';
+import { useJobPipelineStats, useApplicationChat } from '../hooks/useJobPipeline';
 import toast from 'react-hot-toast';
 
 const JobPipeline = () => {
@@ -31,6 +32,110 @@ const JobPipeline = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, page: 1, pageSize: 10, totalPages: 1 });
+
+  // Custom API Hooks
+  const { stats: pipelineStats, loading: statsLoading, fetchStats } = useJobPipelineStats(jobId);
+  const { chatData, loading: chatLoading, fetchChat } = useApplicationChat();
+
+  const getMessageDetails = (msg) => {
+    const isSelf = msg.sender ? msg.sender === 'admin' : msg.sender_type !== 'candidate';
+    const textContent = msg.text || msg.content;
+    const timeText = msg.time || (msg.sent_at ? new Date(msg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '');
+    const isRead = msg.is_read || msg.status === 'read';
+    return { isSelf, textContent, timeText, isRead };
+  };
+
+  const renderMessageContent = (textContent) => {
+    if (!textContent) return null;
+
+    // Check if it's a JSON string representing an interview invitation
+    if (textContent.trim().startsWith('{') && textContent.trim().endsWith('}')) {
+      try {
+        const parsed = JSON.parse(textContent);
+        if (parsed && parsed.type === 'interview_invitation') {
+          return (
+            <div className={styles.invitationCard}>
+              <div className={styles.invitationHeader}>
+                <Calendar size={16} />
+                <h4>{parsed.title || 'Interview Invitation'}</h4>
+              </div>
+
+              <div className={styles.invitationDetails}>
+                {parsed.interview_type && (
+                  <div className={styles.inviteDetailItem}>
+                    <strong>Type:</strong> <span>{parsed.interview_type.replace('_', ' ')}</span>
+                  </div>
+                )}
+                {parsed.interviewer && (
+                  <div className={styles.inviteDetailItem}>
+                    <strong>Interviewer:</strong> <span>{parsed.interviewer}</span>
+                  </div>
+                )}
+                {parsed.duration_minutes && (
+                  <div className={styles.inviteDetailItem}>
+                    <strong>Duration:</strong> <span>{parsed.duration_minutes} mins</span>
+                  </div>
+                )}
+                {parsed.location && (
+                  <div className={styles.inviteDetailItem}>
+                    <strong>Location:</strong> <span>{parsed.location}</span>
+                  </div>
+                )}
+                {parsed.address && (
+                  <div className={styles.inviteDetailItem}>
+                    <strong>Address:</strong> <span>{parsed.address}</span>
+                  </div>
+                )}
+                {parsed.meeting_link && (
+                  <div className={styles.inviteDetailItem}>
+                    <strong>Meeting Link:</strong>{' '}
+                    <a href={parsed.meeting_link} target="_blank" rel="noopener noreferrer" className={styles.meetingLink}>
+                      Join Meeting
+                    </a>
+                  </div>
+                )}
+                {parsed.note_to_candidate && (
+                  <div className={styles.inviteNote}>
+                    <strong>Note:</strong> <p>{parsed.note_to_candidate}</p>
+                  </div>
+                )}
+              </div>
+
+              {parsed.slots && parsed.slots.length > 0 && (
+                <div className={styles.slotsContainer}>
+                  <h5>Proposed Slots:</h5>
+                  {parsed.slots.map((slot, index) => {
+                    const slotDate = slot.date ? new Date(slot.date).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    return (
+                      <div key={slot.id || index} className={styles.slotBadge}>
+                        {slotDate} at {slot.time} ({slot.status})
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {parsed.date && (
+                <div className={styles.singleSlot}>
+                  <strong>Date & Time:</strong> {parsed.date} {parsed.time ? `at ${parsed.time}` : ''}
+                </div>
+              )}
+
+              {parsed.status && (
+                <div className={`${styles.statusBadge} ${styles[parsed.status]}`}>
+                  Status: {parsed.status}
+                </div>
+              )}
+            </div>
+          );
+        }
+      } catch (e) {
+        // Fallback to plain text if JSON parsing fails
+      }
+    }
+
+    return <p>{textContent}</p>;
+  };
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -164,6 +269,14 @@ const JobPipeline = () => {
     setChatCandidate(candidate);
     setIsChatOpen(true);
 
+    if (candidate.application_id) {
+      fetchChat(candidate.application_id).catch(err => {
+        console.error("Failed to fetch application chat:", err);
+      });
+    } else {
+      console.warn("No application_id found on candidate to fetch chat", candidate);
+    }
+
     const candidateKey = candidate.application_id || candidate.candidate_id;
     if (!chatMessages[candidateKey]) {
       setChatMessages(prev => ({
@@ -228,6 +341,12 @@ const JobPipeline = () => {
   useEffect(() => {
     fetchCandidates();
   }, [fetchCandidates]);
+
+  useEffect(() => {
+    if (jobId) {
+      fetchStats();
+    }
+  }, [jobId, fetchStats]);
 
   const getInitials = (name) => {
     if (!name) return '??';
@@ -304,18 +423,24 @@ const JobPipeline = () => {
       {/* Tabs */}
       <div className={styles.tabsContainer}>
         <div className={styles.tabs}>
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => {
-                setActiveTab(tab);
-                setPagination(prev => ({ ...prev, page: 1 }));
-              }}
-              className={`${styles.tab} ${activeTab === tab ? styles.activeTab : ''}`}
-            >
-              {tab}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const count = pipelineStats?.data?.[statusMap[tab]] ?? 0;
+            return (
+              <button
+                key={tab}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setPagination(prev => ({ ...prev, page: 1 }));
+                }}
+                className={`${styles.tab} flex gap-1 ${activeTab === tab ? styles.activeTab : ''}`}
+              >
+                {tab}
+
+                <span >({count})</span>
+                {/* className={styles.tabCount} */}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -361,14 +486,14 @@ const JobPipeline = () => {
                       onClick={() => handleViewProfile(candidate.candidate_id)}
                     >
                       <Eye size={18} />
-                      View Profile
+
                     </button>
                     <button
-                      className={`${styles.chatBtn} text-[#0d9488]  `}
+                      className={`${styles.chatBtn}  `}
                       onClick={() => handleOpenChat(candidate)}
                       title="Chat with Candidate"
                     >
-                      <MessageSquare size={18} />
+                      <MessageSquare size={18} color='#0d9488' />
                     </button>
                   </div>
                 </div>
@@ -578,29 +703,39 @@ const JobPipeline = () => {
 
             {/* Drawer Messages Body */}
             <div className={styles.drawerBody}>
-              <div className={styles.drawerMessages}>
-                {(chatMessages[chatCandidate.application_id || chatCandidate.candidate_id] || []).map((msg) => {
-                  const isSelf = msg.sender === 'admin';
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`${styles.messageWrapper} ${isSelf ? styles.messageSelf : styles.messageOther}`}
-                    >
-                      <div className={styles.messageBubble}>
-                        <p>{msg.text}</p>
-                        <div className={styles.messageMeta}>
-                          <span>{msg.time}</span>
-                          {isSelf && (
-                            <span className={styles.checkIcon}>
-                              <Check size={12} />
-                            </span>
-                          )}
+              {chatLoading ? (
+                <div className={styles.loadingState}>
+                  <Clock className={styles.spinIcon} size={32} />
+                  <p>Loading messages...</p>
+                </div>
+              ) : (
+                <div className={styles.drawerMessages}>
+                  {(chatData?.data?.metadata?.application_id === chatCandidate.application_id
+                    ? chatData.data.messages
+                    : chatMessages[chatCandidate.application_id || chatCandidate.candidate_id] || []
+                  ).map((msg) => {
+                    const { isSelf, textContent, timeText, isRead } = getMessageDetails(msg);
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`${styles.messageWrapper} ${isSelf ? styles.messageSelf : styles.messageOther}`}
+                      >
+                        <div className={styles.messageBubble}>
+                          {renderMessageContent(textContent)}
+                          <div className={styles.messageMeta}>
+                            <span>{timeText}</span>
+                            {isSelf && (
+                              <span className={styles.checkIcon}>
+                                <Check size={12} style={{ color: isRead ? '#38bdf8' : 'currentColor' }} />
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Drawer Body Only */}

@@ -188,6 +188,10 @@ const OrganizationDetails = () => {
 
   const { organisation, documents, members, invitation, onboarding, onboardingSteps = [], verificationFlags = [], latestVerification } = data;
 
+  const onboardingStep = data?.onboarding_step ?? organisation?.onboarding_step ?? onboarding?.onboarding_step;
+  const isStepFour = onboardingStep === 4 || onboardingStep === '4';
+  const isApproveDisabled = updating || organisation.verification_status === 'approved' || organisation.verification_status === 'rejected' || !isStepFour;
+  const isRejectDisabled = updating || organisation.verification_status === 'rejected' || !isStepFour;
 
   return (
     <div className={styles.container}>
@@ -219,7 +223,8 @@ const OrganizationDetails = () => {
           {organisation.verification_status !== 'approved' && organisation.verification_status !== 'suspended' && (
             <button
               className={styles.rejectBtn}
-              disabled={updating || organisation.verification_status === 'rejected'}
+              disabled={isRejectDisabled}
+              title={organisation.verification_status === 'rejected' ? "Organization is already rejected" : (!isStepFour ? "Step 4 onboarding is required" : "")}
               onClick={() => setConfirmModal({ isOpen: true, type: 'rejected', selectedReason: '', customReason: '' })}
             >
               <ShieldAlert size={18} /> Reject
@@ -245,8 +250,8 @@ const OrganizationDetails = () => {
           ) : (
             <button
               className={styles.approveBtn}
-              disabled={updating || organisation.verification_status === 'approved'}
-              title={organisation.verification_status === 'approved' ? "Organization is already approved" : (!onboarding?.isOnboardingComplete ? "User has not completed onboarding" : "")}
+              disabled={isApproveDisabled}
+              title={organisation.verification_status === 'approved' ? "Organization is already approved" : organisation.verification_status === 'rejected' ? "Organization is rejected" : (!isStepFour ? "Step 4 onboarding is required" : "")}
               onClick={() => setConfirmModal({ isOpen: true, type: 'approved', selectedReason: '', customReason: '' })}
             >
               <ShieldCheck size={18} /> {organisation.verification_status === 'approved' ? 'Approved' : 'Approve'}

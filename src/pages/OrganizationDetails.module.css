@@ -239,6 +239,15 @@
   background: #fff5f5;
 }
 
+.rejectBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--white);
+  border-color: var(--border-light);
+  color: var(--text-light);
+  pointer-events: auto; /* Enable tooltip on disabled button */
+}
+
 /* Grid System */
 .detailGrid {
   display: grid;

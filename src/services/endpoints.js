@@ -30,6 +30,8 @@ export const API_ENDPOINTS = {
     STATS: '/admin/jobs/stats',
     DETAILS: (id) => `/admin/jobs/${id}`,
     PIPELINE: (id) => `/admin/jobs/${id}/pipeline`,
+    PIPELINE_STATS: (id) => `/admin/jobs/${id}/pipeline/stats`,
+    APPLICATION_CHAT: (applicationId) => `/admin/jobs/applications/${applicationId}/chat`,
   },
   CANDIDATES: {
     LIST: '/admin/candidates',
