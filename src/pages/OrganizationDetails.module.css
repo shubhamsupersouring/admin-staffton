@@ -1167,8 +1167,12 @@
 }
 
 .customReasonArea {
+  width: 100%;
   margin-top: 8px;
   animation: slideDown 0.3s ease;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slideDown {
@@ -1180,7 +1184,9 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  display: block;
+  text-align: left;
 }
 
 .reasonInput {
@@ -1195,12 +1201,19 @@
   background: #f8fafc;
   outline: none;
   transition: all 0.2s;
+  box-sizing: border-box;
 }
 
 .reasonInput:focus {
   border-color: #ef4444;
   background: white;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+.reactivateReason:focus {
+  border-color: var(--teal);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(15, 184, 164, 0.08);
 }
 
 .modalHelp {

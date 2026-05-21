@@ -607,7 +607,7 @@ const OrganizationDetails = () => {
               <div className={styles.customReasonArea}>
                 <label className={styles.modalLabel}>Reason for Reactivation</label>
                 <textarea
-                  className={styles.reasonInput}
+                  className={`${styles.reasonInput} ${styles.reactivateReason}`}
                   placeholder="Provide detailed reason for reactivation..."
                   value={confirmModal.customReason}
                   onChange={(e) => setConfirmModal({ ...confirmModal, customReason: e.target.value })}
