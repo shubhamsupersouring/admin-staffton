@@ -173,8 +173,10 @@ const PieChartCard = ({ title, subtitle, data }) => {
 };
 
 const DailyActivityCard = ({ title, subtitle, data }) => {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
   const safeData = Array.isArray(data) ? data : [];
   const maxValue = safeData.reduce((max, item) => Math.max(max, Number(item.value || 0)), 0);
+  const anyHovered = hoveredIndex !== null;
 
   return (
     <div className={styles.card}>
@@ -185,16 +187,65 @@ const DailyActivityCard = ({ title, subtitle, data }) => {
         <p className={styles.chartSubtitle}>{subtitle}</p>
         {safeData.length > 0 ? (
           <div className={styles.barChart}>
-            {safeData.map((item) => {
+            {safeData.map((item, index) => {
               const value = Number(item.value || 0);
               const height = maxValue > 0 ? Math.max((value / maxValue) * 100, 6) : 6;
+              const isHovered = hoveredIndex === index;
               return (
-                <div key={item.label} className={styles.barColumn}>
-                  <div className={styles.barValue}>{value}</div>
-                  <div className={styles.barTrack}>
-                    <div className={styles.barFill} style={{ height: `${height}%` }} />
+                <div
+                  key={item.label}
+                  className={styles.barColumn}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  style={{
+                    transform: isHovered ? 'translateY(-6px)' : 'translateY(0)',
+                    opacity: anyHovered && !isHovered ? 0.6 : 1,
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div
+                    className={styles.barValue}
+                    style={{
+                      color: isHovered ? 'var(--teal)' : 'var(--navy)',
+                      fontWeight: isHovered ? '800' : '700',
+                      transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {value}
                   </div>
-                  <div className={styles.barLabel}>{item.label}</div>
+                  <div
+                    className={styles.barTrack}
+                    style={{
+                      boxShadow: isHovered ? '0 4px 12px rgba(15, 184, 164, 0.25)' : 'none',
+                      borderColor: isHovered ? 'var(--teal)' : 'transparent',
+                      borderWidth: '1.5px',
+                      borderStyle: 'solid',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <div
+                      className={styles.barFill}
+                      style={{
+                        height: `${height}%`,
+                        background: isHovered
+                          ? 'linear-gradient(180deg, #14b8a6 0%, #0f766e 100%)'
+                          : 'linear-gradient(180deg, var(--teal) 0%, var(--teal-dark) 100%)',
+                        transition: 'background 0.2s ease'
+                      }}
+                    />
+                  </div>
+                  <div
+                    className={styles.barLabel}
+                    style={{
+                      color: isHovered ? 'var(--text)' : 'var(--text-muted)',
+                      fontWeight: isHovered ? '600' : 'normal',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {item.label}
+                  </div>
                 </div>
               );
             })}
