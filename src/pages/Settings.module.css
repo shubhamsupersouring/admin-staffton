@@ -133,7 +133,9 @@
 }
 
 .field input,
-.field select {
+.field select,
+.adminEditGrid input,
+.adminEditGrid select {
   width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--border);
@@ -145,7 +147,9 @@
 }
 
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.adminEditGrid input:focus,
+.adminEditGrid select:focus {
   border-color: var(--teal);
   outline: none;
 }

@@ -239,6 +239,19 @@
   color: var(--text-muted);
 }
 
+.tagPending {
+  background: var(--pending-bg) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+  color: #B45309 !important;
+}
+
+.tagExpired {
+  background: var(--expired-bg) !important;
+  border-color: rgba(156, 163, 175, 0.2) !important;
+  color: var(--expired) !important;
+}
+
+
 .cardBottomRow {
   display: flex;
   align-items: center;

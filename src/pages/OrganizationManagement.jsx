@@ -54,6 +54,28 @@ const OrganizationManagement = () => {
 
   const isInvitePendingAcceptance = (invite) => (invite?.status || '').toLowerCase() !== 'accepted';
 
+  const getStatusColor = (status) => {
+    if (!status) return '#6b7e92';
+    const s = status.toLowerCase();
+    switch (s) {
+      case 'active':
+      case 'approved':
+      case 'accepted':
+        return '#0d9488'; // teal
+      case 'pending':
+      case 'under_review':
+        return '#d97706'; // orange
+      case 'rejected':
+      case 'suspended':
+        return '#ef4444'; // red
+      case 'expired':
+        return '#9ca3af'; // gray
+      default:
+        return '#6b7e92';
+    }
+  };
+
+
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 400);
     return () => clearTimeout(t);
@@ -185,13 +207,13 @@ const OrganizationManagement = () => {
             className={`${styles.tab} ${activeTab === 'registry' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('registry')}
           >
-            Provider Registry
+            All Organizations
           </div>
           <div
             className={`${styles.tab} ${activeTab === 'invitations' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('invitations')}
           >
-            Invite Sent
+            Pending Organizations
           </div>
         </div>
 
@@ -219,7 +241,7 @@ const OrganizationManagement = () => {
                 <>
                   <option value="pending">Pending</option>
                   <option value="expired">Expired</option>
-                  <option value="revoked">Revoked</option>
+
                 </>
               ) : (
                 <>
@@ -257,12 +279,12 @@ const OrganizationManagement = () => {
                   className={styles.listCard}
                   onClick={() => activeTab === 'registry' && navigate(`/organizations/${item.id}`)}
                 >
-                    <div className={styles.cardTopBar}>
-                      <div className={styles.timeLabel}>
-                        <Timer size={14} />
-                        <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
-                      </div>
+                  <div className={styles.cardTopBar}>
+                    <div className={styles.timeLabel}>
+                      <Timer size={14} />
+                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
                     </div>
+                  </div>
 
                   <div className={styles.cardMainContent}>
                     <h3 className={`${styles.orgNameTitle} whitespace-pre-wrap break-all`}>
@@ -296,7 +318,9 @@ const OrganizationManagement = () => {
                         </>
                       ) : (
                         <>
-                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>Pending Invite</span>
+                          <span className={`${styles.tag} ${item.status === 'expired' ? styles.tagExpired : styles.tagPending} whitespace-pre-wrap break-all`}>
+                            {item.status === 'expired' ? 'Expired Invite' : 'Pending Invite'}
+                          </span>
                           <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.contact_email}</span>
                         </>
                       )}
@@ -312,7 +336,7 @@ const OrganizationManagement = () => {
                         <div className={styles.statBox}>
                           <span className={styles.statLabel}>Current Status</span>
                           <span className={`${styles.statValue} whitespace-pre-wrap break-all`} style={{
-                            color: (item.verification_status === 'approved' || item.status === 'accepted') ? '#0d9488' : '#d97706'
+                            color: getStatusColor(activeTab === 'invitations' ? item.status : item.verification_status)
                           }}>
                             {activeTab === 'invitations' ? item.status : item.verification_status}
                           </span>
@@ -348,7 +372,7 @@ const OrganizationManagement = () => {
                 </div>
               ))}
 
-              <Pagination 
+              <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
@@ -370,28 +394,28 @@ const OrganizationManagement = () => {
               <label>Organization Name</label>
               <div className={styles.inputWrapper}>
                 <Building size={18} className={styles.inputIcon} />
-                <input 
-                  type="text" 
-                  placeholder="e.g. Apollo Hospitals" 
-                  required 
+                <input
+                  type="text"
+                  placeholder="e.g. Apollo Hospitals"
+                  required
                   maxLength={80}
-                  value={formData.org_name} 
-                  onChange={(e) => setFormData({ ...formData, org_name: e.target.value })} 
+                  value={formData.org_name}
+                  onChange={(e) => setFormData({ ...formData, org_name: e.target.value })}
                 />
               </div>
             </div>
-            
+
             <div className={styles.formGroup}>
               <label>Primary Contact Name</label>
               <div className={styles.inputWrapper}>
                 <User size={18} className={styles.inputIcon} />
-                <input 
-                  type="text" 
-                  placeholder="e.g. John Doe" 
-                  required 
+                <input
+                  type="text"
+                  placeholder="e.g. John Doe"
+                  required
                   maxLength={80}
-                  value={formData.contact_name} 
-                  onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })} 
+                  value={formData.contact_name}
+                  onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
                 />
               </div>
             </div>
@@ -400,12 +424,12 @@ const OrganizationManagement = () => {
               <label>Corporate Contact Email</label>
               <div className={styles.inputWrapper}>
                 <Mail size={18} className={styles.inputIcon} />
-                <input 
-                  type="email" 
-                  placeholder="e.g. hr@apollo.com" 
-                  required 
-                  value={formData.contact_email} 
-                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })} 
+                <input
+                  type="email"
+                  placeholder="e.g. hr@apollo.com"
+                  required
+                  value={formData.contact_email}
+                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                 />
               </div>
             </div>
