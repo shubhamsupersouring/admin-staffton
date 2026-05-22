@@ -96,7 +96,7 @@ const JobDetails = () => {
               <h1 className={`${styles.title} whitespace-pre-wrap wrap-break-word [word-break:break-word]`}>
                 {displayValue(job.title)}
               </h1>
-              <span className={`${styles.statusPill} ${job.status === 'active' ? styles.approved : styles.pending}`}>
+              <span className={`${styles.statusPill} ${(job.status === 'active' || job.status === 'posted') ? styles.approved : styles.pending}`}>
                 {job.status || 'draft'}
               </span>
             </div>

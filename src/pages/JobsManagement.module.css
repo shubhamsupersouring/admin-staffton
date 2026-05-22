@@ -1,7 +1,3 @@
-.container {
-  /* No max-width — full width like Organizations */
-}
-
 /* Header — matches OrganizationManagement */
 .header {
   display: flex;
@@ -100,10 +96,25 @@
 }
 
 /* Icon Variations — Dashboard tints */
-.iconApplied { background: #e6fffa; color: #0d9488; }
-.iconReview { background: #ebf8ff; color: #2563eb; }
-.iconActive { background: #f0fff4; color: #16a34a; }
-.iconSaved { background: #fff5f5; color: #dc2626; }
+.iconApplied {
+  background: #e6fffa;
+  color: #0d9488;
+}
+
+.iconReview {
+  background: #ebf8ff;
+  color: #2563eb;
+}
+
+.iconActive {
+  background: #f0fff4;
+  color: #16a34a;
+}
+
+.iconSaved {
+  background: #fff5f5;
+  color: #dc2626;
+}
 
 .statContent {
   display: flex;
@@ -713,7 +724,7 @@
     align-items: stretch;
     gap: 12px;
   }
-  
+
   .filters {
     flex-direction: column;
     align-items: stretch;

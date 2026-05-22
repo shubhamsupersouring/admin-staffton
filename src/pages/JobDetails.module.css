@@ -131,12 +131,12 @@
 }
 
 .approved {
-  background: rgba(16, 185, 129, 0.12);
-  color: #059669;
+  background: #f0fff4;
+  color: #16a34a;
 }
 
 .pending {
-  background: rgba(245, 158, 11, 0.12);
+  background: #fffaf0;
   color: #d97706;
 }
 

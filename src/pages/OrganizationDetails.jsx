@@ -57,7 +57,7 @@ const JobCard = memo(({ job, organisation, navigate }) => {
         <span className={styles.postedTime}>
           <Clock size={14} /> Posted {new Date(job.created_at).toLocaleDateString()}
         </span>
-        <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, textTransform: 'capitalize', background: job.status === 'active' ? '#f0fff4' : '#fffaf0', color: job.status === 'active' ? '#16a34a' : '#d97706' }}>
+        <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, textTransform: 'capitalize', background: (job.status === 'active' || job.status === 'posted') ? '#f0fff4' : '#fffaf0', color: (job.status === 'active' || job.status === 'posted') ? '#16a34a' : '#d97706' }}>
           {job.status || 'draft'}
         </span>
       </div>
