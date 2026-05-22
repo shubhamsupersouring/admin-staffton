@@ -10,6 +10,8 @@ import {
   Trash2,
   ShieldAlert,
   Users,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminService } from '../services/admin.service';
@@ -37,6 +39,8 @@ const Settings = () => {
   });
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [admins, setAdmins] = useState([]);
   const [adminsLoading, setAdminsLoading] = useState(false);
@@ -54,6 +58,9 @@ const Settings = () => {
     role: 'admin',
     password: '',
   });
+
+  const isCurrentUserPrimary = !!(user?.is_primary_admin || admins.find(a => a.id === user?.id)?.is_primary_admin);
+  const isRegularAdmin = user?.role === 'admin';
 
   const fetchProfile = async () => {
     setProfileLoading(true);
@@ -138,6 +145,7 @@ const Settings = () => {
   };
 
   const fetchAdmins = async () => {
+    if (isRegularAdmin) return;
     setAdminsLoading(true);
     try {
       const res = await adminService.getAdmins();
@@ -150,10 +158,10 @@ const Settings = () => {
   };
 
   useEffect(() => {
-    if (activeTab === 'admins') {
+    if (activeTab === 'admins' && !isRegularAdmin) {
       fetchAdmins();
     }
-  }, [activeTab]);
+  }, [activeTab, isRegularAdmin]);
 
   const activeAdminCount = admins.length;
   const maxAdminsReached = activeAdminCount >= 5;
@@ -182,6 +190,10 @@ const Settings = () => {
   };
 
   const startEdit = (admin) => {
+    if (!isCurrentUserPrimary) {
+      toast.error('Only the primary user can edit administrators');
+      return;
+    }
     setEditingAdminId(admin.id);
     setEditForm({
       full_name: admin.full_name || '',
@@ -197,14 +209,24 @@ const Settings = () => {
   };
 
   const submitEdit = async (adminId) => {
+    if (!isCurrentUserPrimary) {
+      toast.error('Only the primary user can edit administrators');
+      return;
+    }
+
     const payload = {
       full_name: editForm.full_name,
       email: editForm.email,
-      role: editForm.role,
     };
-    if (String(editForm.password || '').trim()) {
-      payload.password = editForm.password;
+    
+    // Only primary user can change the role and password
+    if (isCurrentUserPrimary) {
+      payload.role = editForm.role;
+      if (String(editForm.password || '').trim()) {
+        payload.password = editForm.password;
+      }
     }
+
     setAdminSubmitting(true);
     try {
       await adminService.updateAdmin(adminId, payload);
@@ -219,6 +241,10 @@ const Settings = () => {
   };
 
   const removeAdmin = async (admin) => {
+    if (!isCurrentUserPrimary) {
+      toast.error('Only the primary user can remove administrators');
+      return;
+    }
     if (!admin.can_delete) {
       toast.error('First created admin cannot be deleted');
       return;
@@ -264,14 +290,16 @@ const Settings = () => {
           <SlidersHorizontal size={14} />
           Profile Settings
         </button>
-        <button
-          type="button"
-          className={`${styles.tabBtn} ${activeTab === 'admins' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('admins')}
-        >
-          <Users size={14} />
-          Admins ({activeAdminCount})
-        </button>
+        {!isRegularAdmin && (
+          <button
+            type="button"
+            className={`${styles.tabBtn} ${activeTab === 'admins' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('admins')}
+          >
+            <Users size={14} />
+            Admins ({activeAdminCount})
+          </button>
+        )}
       </div>
 
       <div className={styles.grid}>
@@ -307,29 +335,49 @@ const Settings = () => {
               </div>
               <div className={styles.field}>
                 <label>New Password <span className={styles.optional}>(optional)</span></label>
-                <input
-                  type="password"
-                  autoComplete="new-password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Set a new password"
-                />
+                <div className={styles.passwordInputContainer}>
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Set a new password"
+                  />
+                  <button
+                    type="button"
+                    className={styles.eyeBtn}
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
               <div className={styles.field}>
                 <label>Confirm Password</label>
-                <input
-                  type="password"
-                  autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repeat new password"
-                />
+                <div className={styles.passwordInputContainer}>
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repeat new password"
+                  />
+                  <button
+                    type="button"
+                    className={styles.eyeBtn}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
             </form>
           </section>
         )}
 
-        {activeTab === 'admins' && (
+        {activeTab === 'admins' && !isRegularAdmin && (
           <div className={styles.adminsPanel}>
             <section className={styles.card}>
               <div className={styles.cardHeader}>
@@ -368,12 +416,12 @@ const Settings = () => {
                     placeholder="••••••••"
                   />
                 </div>
-                <div className={styles.field}>
+                 <div className={styles.field}>
                   <label>Role</label>
                   <select
                     value={adminForm.role}
                     onChange={(e) => setAdminForm((p) => ({ ...p, role: e.target.value }))}
-                    disabled={adminSubmitting || maxAdminsReached}
+                    disabled={adminSubmitting || maxAdminsReached || !isCurrentUserPrimary}
                   >
                     <option value="admin">Admin Access</option>
                     <option value="super_admin">Super Admin</option>
@@ -429,11 +477,12 @@ const Settings = () => {
                               }
                               placeholder="Email"
                             />
-                            <select
+                             <select
                               value={editForm.role}
                               onChange={(e) =>
                                 setEditForm((p) => ({ ...p, role: e.target.value }))
                               }
+                              disabled={!isCurrentUserPrimary}
                             >
                               <option value="admin">admin</option>
                               <option value="super_admin">super_admin</option>
@@ -444,7 +493,12 @@ const Settings = () => {
                               onChange={(e) =>
                                 setEditForm((p) => ({ ...p, password: e.target.value }))
                               }
-                              placeholder="New password (optional)"
+                              placeholder={
+                                isCurrentUserPrimary
+                                  ? "New password (optional)"
+                                  : "Password edit restricted"
+                              }
+                              disabled={!isCurrentUserPrimary}
                             />
                           </div>
                           <div className={styles.adminActions}>
@@ -472,14 +526,16 @@ const Settings = () => {
                             )}
                           </div>
                           <div className={styles.adminActions}>
-                            <button
-                              type="button"
-                              className={styles.iconBtn}
-                              onClick={() => startEdit(admin)}
-                            >
-                              <Pencil size={14} /> Edit
-                            </button>
-                            {admin.can_delete && (
+                            {isCurrentUserPrimary && (
+                              <button
+                                type="button"
+                                className={styles.iconBtn}
+                                onClick={() => startEdit(admin)}
+                              >
+                                <Pencil size={14} /> Edit
+                              </button>
+                            )}
+                             {admin.can_delete && isCurrentUserPrimary && (
                               <button
                                 type="button"
                                 className={`${styles.iconBtn} ${styles.dangerBtn}`}
