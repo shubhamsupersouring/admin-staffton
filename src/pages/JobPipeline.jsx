@@ -22,6 +22,7 @@ import { jobService } from '../services/job.service';
 import { candidateService } from '../services/candidate.service';
 import { useJobPipelineStats, useApplicationChat } from '../hooks/useJobPipeline';
 import toast from 'react-hot-toast';
+import { Avatar } from '../utils/avatar';
 
 const JobPipeline = () => {
   const [searchParams] = useSearchParams();
@@ -468,12 +469,11 @@ const JobPipeline = () => {
                 {/* Card Top */}
                 <div className={styles.cardTop}>
                   <div className={styles.candidateInfo}>
-                    <div
-                      className={styles.avatar}
-                      style={{ backgroundColor: getRandomColor(candidate.candidate_id) }}
-                    >
-                      {getInitials(candidate.full_name)}
-                    </div>
+                    <Avatar 
+                      name={candidate.full_name} 
+                      imageUrl={candidate.profilePhoto} 
+                      size="md" 
+                    />
                     <div className={styles.nameWrapper}>
                       <h3>{candidate.full_name}</h3>
                       <p className={styles.role}>{candidate.primary_role}</p>
@@ -553,14 +553,11 @@ const JobPipeline = () => {
               <div className={styles.modalBody}>
                 <div className={styles.candidateHeader}>
                   <div className={styles.headerFlex}>
-                    {selectedCandidate.profilePhoto && (
-                      <img
-                        src={selectedCandidate.profilePhoto}
-                        alt={selectedCandidate.fullName}
-                        className={styles.modalAvatar}
-                        onError={(e) => e.target.style.display = 'none'}
-                      />
-                    )}
+                    <Avatar 
+                      name={selectedCandidate.fullName || 'Candidate'} 
+                      imageUrl={selectedCandidate.profilePhoto} 
+                      size="xl" 
+                    />
                     <div className={styles.headerInfo}>
                       <h2>{selectedCandidate.fullName}</h2>
                       <p className={styles.modalRole}>{selectedCandidate.role || 'No Role Specified'}</p>
@@ -685,12 +682,11 @@ const JobPipeline = () => {
             {/* Drawer Header */}
             <header className={styles.drawerHeader}>
               <div className={styles.drawerCandidateInfo}>
-                <div
-                  className={styles.drawerAvatar}
-                  style={{ backgroundColor: getRandomColor(chatCandidate.candidate_id) }}
-                >
-                  {getInitials(chatCandidate.full_name)}
-                </div>
+                <Avatar 
+                  name={chatCandidate.full_name} 
+                  imageUrl={chatCandidate.profilePhoto} 
+                  size="md" 
+                />
                 <div className={styles.drawerNameWrapper}>
                   <h3>{chatCandidate.full_name}</h3>
                   <span className={styles.drawerStatusText}>Active Chat</span>

@@ -38,7 +38,7 @@ const Header = ({ breadcrumbs, onToggleSidebar }) => {
         </div>
       </div>
 
-      <div className={styles.right}>
+      {/* <div className={styles.right}>
         <div className={styles.iconActions}>
           <button className={styles.iconBtn}>
             <Bell size={18} />
@@ -48,7 +48,7 @@ const Header = ({ breadcrumbs, onToggleSidebar }) => {
             <Settings size={18} />
           </button>
         </div>
-      </div>
+      </div> */}
     </header>
   );
 };
