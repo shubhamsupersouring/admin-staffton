@@ -1,4 +1,4 @@
-  import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateSessionUser } from '../features/auth/authSlice';
 import {
@@ -50,12 +50,12 @@ const Settings = () => {
     full_name: '',
     email: '',
     password: '',
-    role: 'admin',
+    role: 'super_admin',
   });
   const [editForm, setEditForm] = useState({
     full_name: '',
     email: '',
-    role: 'admin',
+    role: 'super_admin',
     password: '',
   });
 
@@ -180,7 +180,7 @@ const Settings = () => {
     try {
       await adminService.createAdmin(adminForm);
       toast.success('Admin added successfully');
-      setAdminForm({ full_name: '', email: '', password: '', role: 'admin' });
+      setAdminForm({ full_name: '', email: '', password: '', role: 'super_admin' });
       fetchAdmins();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to add admin');
@@ -198,14 +198,14 @@ const Settings = () => {
     setEditForm({
       full_name: admin.full_name || '',
       email: admin.email || '',
-      role: admin.role || 'admin',
+      role: admin.role || 'super_admin',
       password: '',
     });
   };
 
   const cancelEdit = () => {
     setEditingAdminId(null);
-    setEditForm({ full_name: '', email: '', role: 'admin', password: '' });
+    setEditForm({ full_name: '', email: '', role: 'super_admin', password: '' });
   };
 
   const submitEdit = async (adminId) => {
@@ -218,7 +218,7 @@ const Settings = () => {
       full_name: editForm.full_name,
       email: editForm.email,
     };
-    
+
     // Only primary user can change the role and password
     if (isCurrentUserPrimary) {
       payload.role = editForm.role;
@@ -406,7 +406,7 @@ const Settings = () => {
                     placeholder="email@staffton.com"
                   />
                 </div>
-                <div className={styles.field}>
+                <div className={styles.field} style={{ gridColumn: 'span 2' }}>
                   <label>Password</label>
                   <input
                     type="password"
@@ -415,17 +415,6 @@ const Settings = () => {
                     disabled={adminSubmitting || maxAdminsReached}
                     placeholder="••••••••"
                   />
-                </div>
-                 <div className={styles.field}>
-                  <label>Role</label>
-                  <select
-                    value={adminForm.role}
-                    onChange={(e) => setAdminForm((p) => ({ ...p, role: e.target.value }))}
-                    disabled={adminSubmitting || maxAdminsReached || !isCurrentUserPrimary}
-                  >
-                    <option value="admin">Admin Access</option>
-                    <option value="super_admin">Super Admin</option>
-                  </select>
                 </div>
                 <div className={styles.formActions}>
                   <button
@@ -477,16 +466,6 @@ const Settings = () => {
                               }
                               placeholder="Email"
                             />
-                             <select
-                              value={editForm.role}
-                              onChange={(e) =>
-                                setEditForm((p) => ({ ...p, role: e.target.value }))
-                              }
-                              disabled={!isCurrentUserPrimary}
-                            >
-                              <option value="admin">admin</option>
-                              <option value="super_admin">super_admin</option>
-                            </select>
                             <input
                               type="password"
                               value={editForm.password}
@@ -499,6 +478,7 @@ const Settings = () => {
                                   : "Password edit restricted"
                               }
                               disabled={!isCurrentUserPrimary}
+                              style={{ gridColumn: 'span 2' }}
                             />
                           </div>
                           <div className={styles.adminActions}>
@@ -535,7 +515,7 @@ const Settings = () => {
                                 <Pencil size={14} /> Edit
                               </button>
                             )}
-                             {admin.can_delete && isCurrentUserPrimary && (
+                            {admin.can_delete && isCurrentUserPrimary && (
                               <button
                                 type="button"
                                 className={`${styles.iconBtn} ${styles.dangerBtn}`}
