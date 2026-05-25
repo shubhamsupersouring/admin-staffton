@@ -325,7 +325,7 @@ const Settings = () => {
                 <input
                   type="email"
                   value={profile.email}
-                  onChange={(e) => setProfile((prev) => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) => setProfile((prev) => ({ ...prev, email: e.target.value.toLocaleLowerCase() }))}
                   placeholder="admin@staffton.com"
                 />
               </div>
@@ -401,7 +401,7 @@ const Settings = () => {
                   <input
                     type="email"
                     value={adminForm.email}
-                    onChange={(e) => setAdminForm((p) => ({ ...p, email: e.target.value }))}
+                    onChange={(e) => setAdminForm((p) => ({ ...p, email: e.target.value.toLocaleLowerCase() }))}
                     disabled={adminSubmitting || maxAdminsReached}
                     placeholder="email@staffton.com"
                   />
@@ -462,7 +462,7 @@ const Settings = () => {
                               type="email"
                               value={editForm.email}
                               onChange={(e) =>
-                                setEditForm((p) => ({ ...p, email: e.target.value }))
+                                setEditForm((p) => ({ ...p, email: e.target.value.toLocaleLowerCase() }))
                               }
                               placeholder="Email"
                             />

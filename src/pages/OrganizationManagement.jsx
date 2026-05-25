@@ -165,7 +165,19 @@ const OrganizationManagement = () => {
       if (action === 'revoke') {
         if (!window.confirm('Are you sure you want to revoke this invitation?')) return;
       }
-      await organizationService.updateInvitation(item.id, { action });
+      
+      let inviteId = activeTab === 'invitations' ? item.id : (item.invitation_id || item.invite_id || item.invitation?.id);
+      
+      if (!inviteId && activeTab === 'registry') {
+        const details = await organizationService.getOrganizationDetails(item.id);
+        inviteId = details.data?.invitation?.id;
+      }
+      
+      if (!inviteId) {
+        throw new Error('No invitation found for this organization');
+      }
+
+      await organizationService.updateInvitation(inviteId, { action });
       if (action === 'resend') {
         toast.success('Invitation resent');
       } else if (action === 'revoke') {
@@ -176,7 +188,7 @@ const OrganizationManagement = () => {
       }
       fetchData();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Action failed');
+      toast.error(error.response?.data?.message || error.message || 'Action failed');
     } finally {
       if (action === 'resend') {
         setResendLoadingId(null);
@@ -350,7 +362,11 @@ const OrganizationManagement = () => {
                         >
                           View details
                         </button>
-                        {activeTab === 'invitations' && (
+                        {(activeTab === 'invitations' ||
+                          (activeTab === 'registry' &&
+                            (item.verification_status?.toLowerCase() === 'pending' ||
+                             item.verification_status?.toLowerCase() === 'rejected' ||
+                             item.verification_status?.toLowerCase() === 'reject'))) && (
                           <button
                             className={styles.primaryActionBtn}
                             disabled={resendLoadingId === item.id}
@@ -429,7 +445,7 @@ const OrganizationManagement = () => {
                   placeholder="e.g. hr@apollo.com"
                   required
                   value={formData.contact_email}
-                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value.toLocaleLowerCase() })}
                 />
               </div>
             </div>

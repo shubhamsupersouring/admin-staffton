@@ -78,11 +78,11 @@ const Sidebar = ({ isOpen = false, onClose = () => { }, isCollapsed = false, onT
         icon: <Layers size={18} />,
         path: '/entities',
       },
-      {
-        name: 'Users',
-        icon: <User size={18} />,
-        path: '/users',
-      },
+      // {
+      //   name: 'Users',
+      //   icon: <User size={18} />,
+      //   path: '/users',
+      // },
       {
         name: 'Candidates',
         icon: <Users size={18} />,
