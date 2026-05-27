@@ -82,7 +82,11 @@ const OrganizationManagement = () => {
   }, [searchTerm]);
 
   useEffect(() => {
-    setStatusFilter('');
+    if (activeTab === 'invitations') {
+      setStatusFilter('pending');
+    } else {
+      setStatusFilter('');
+    }
     setCurrentPage(1);
   }, [activeTab]);
 
@@ -106,8 +110,8 @@ const OrganizationManagement = () => {
         setTotalPages(res.data.totalPages || 0);
         setTotalItems(res.data.total || 0);
       } else {
-        const res = await organizationService.getInvitations(params);
-        const inviteList = res.data.invitations || [];
+        const res = await organizationService.getOrganizations(params);
+        const inviteList = res.data.organizations || [];
         setInvites(inviteList);
         setTotalPages(res.data.totalPages || 0);
         setTotalItems(res.data.total || 0);
@@ -333,7 +337,7 @@ const OrganizationManagement = () => {
                           <span className={`${styles.tag} ${item.status === 'expired' ? styles.tagExpired : styles.tagPending} whitespace-pre-wrap break-all`}>
                             {item.status === 'expired' ? 'Expired Invite' : 'Pending Invite'}
                           </span>
-                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.contact_email}</span>
+                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item?.contact_email || item?.latest_invitation_contact_email}</span>
                         </>
                       )}
                     </div>
@@ -348,9 +352,9 @@ const OrganizationManagement = () => {
                         <div className={styles.statBox}>
                           <span className={styles.statLabel}>Current Status</span>
                           <span className={`${styles.statValue} whitespace-pre-wrap break-all`} style={{
-                            color: getStatusColor(activeTab === 'invitations' ? item.status : item.verification_status)
+                            color: getStatusColor(item.verification_status)
                           }}>
-                            {activeTab === 'invitations' ? item.status : item.verification_status}
+                            {item.verification_status}
                           </span>
                         </div>
                       </div>
