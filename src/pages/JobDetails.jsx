@@ -80,7 +80,7 @@ const JobDetails = () => {
     <div >
       {/* Top Navigation */}
       <header className={styles.topNav}>
-        <button className={styles.backBtn} onClick={() => navigate('/jobs')}>
+        <button className={styles.backBtn} onClick={() => navigate(-1)}>
           <ArrowLeft size={16} /> Back to Jobs
         </button>
       </header>

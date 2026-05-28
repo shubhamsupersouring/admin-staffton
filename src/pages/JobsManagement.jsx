@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Search, 
   MapPin, 
@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 import styles from './JobsManagement.module.css';
 import { jobService } from '../services/job.service';
 import Modal from '../components/Modal/Modal';
-import { AdminDashboardSkeleton } from '../components/Skeleton';
+import { AdminDashboardSkeleton, OrganizationListSkeleton } from '../components/Skeleton';
 import Pagination from '../components/Pagination/Pagination';
 import { formatCompensation } from '../utils/formatCompensation';
 
@@ -193,12 +193,15 @@ const ITEMS_PER_PAGE = 10;
 
 const   JobsManagement = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageParam = searchParams.get('page');
+  const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [filters, setFilters] = useState({
     roles: ['All'],
@@ -215,6 +218,12 @@ const   JobsManagement = () => {
     saved: 0
   });
   const [totalPages, setTotalPages] = useState(0);
+
+  const handlePageChange = useCallback((page) => {
+    const params = Object.fromEntries(searchParams.entries());
+    params.page = String(page);
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
   // Debounce search
   useEffect(() => {
@@ -267,14 +276,32 @@ const   JobsManagement = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [fetchData]);
 
+  const prevSearchRef = useRef(debouncedSearch);
+  const prevSortRef = useRef(sortOrder);
+  const prevStatusRef = useRef(statusFilter);
+  const prevFiltersRef = useRef(filters);
+
   // Reset page on filter/search change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch, sortOrder, statusFilter, filters]);
+    const searchChanged = prevSearchRef.current !== debouncedSearch;
+    const sortChanged = prevSortRef.current !== sortOrder;
+    const statusChanged = prevStatusRef.current !== statusFilter;
+    const filtersChanged = prevFiltersRef.current !== filters;
 
+    if (searchChanged || sortChanged || statusChanged || filtersChanged) {
+      prevSearchRef.current = debouncedSearch;
+      prevSortRef.current = sortOrder;
+      prevStatusRef.current = statusFilter;
+      prevFiltersRef.current = filters;
 
-
-  if (loading && jobs.length === 0) return <AdminDashboardSkeleton />;
+      const page = searchParams.get('page');
+      if (page && page !== '1') {
+        const params = Object.fromEntries(searchParams.entries());
+        params.page = '1';
+        setSearchParams(params);
+      }
+    }
+  }, [debouncedSearch, sortOrder, statusFilter, filters, searchParams, setSearchParams]);
 
   return (
     <div className={styles.container}>
@@ -374,29 +401,35 @@ const   JobsManagement = () => {
 
       {/* List */}
       <div className={styles.listContainer}>
-        <div className={styles.resultsCount}>
-          <Briefcase size={14} /> {jobs.length} jobs found
-        </div>
-        <div className={styles.listGrid}>
-          {jobs.length > 0 ? (
-            jobs.map(job => <JobCard key={job.id} job={job} onViewDetails={() => navigate(`/jobs/${job.id}`)} />)
-          ) : (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIllustration}>
-                <Briefcase size={64} />
-              </div>
-              <h3>No jobs found</h3>
-              <p>Try adjusting your search or filters to see more results.</p>
+        {loading ? (
+          <OrganizationListSkeleton count={4} />
+        ) : (
+          <>
+            <div className={styles.resultsCount}>
+              <Briefcase size={14} /> {jobs.length} jobs found
             </div>
-          )}
-        </div>
+            <div className={styles.listGrid}>
+              {jobs.length > 0 ? (
+                jobs.map(job => <JobCard key={job.id} job={job} onViewDetails={() => navigate(`/jobs/${job.id}`)} />)
+              ) : (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIllustration}>
+                    <Briefcase size={64} />
+                  </div>
+                  <h3>No jobs found</h3>
+                  <p>Try adjusting your search or filters to see more results.</p>
+                </div>
+              )}
+            </div>
 
-        {/* Pagination */}
-        <Pagination 
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+            {/* Pagination */}
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
+        )}
       </div>
 
       <FilterModal 
@@ -406,11 +439,9 @@ const   JobsManagement = () => {
         setFilters={setFilters}
         onApply={() => {
           setIsFilterOpen(false);
-          setCurrentPage(1);
         }}
         onReset={() => {
           setFilters({ roles: ['All'], workTypes: [], shifts: [], salaryFrom: '', salaryTo: '' });
-          setCurrentPage(1);
         }}
       />
     </div>

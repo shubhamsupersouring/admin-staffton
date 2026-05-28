@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Search,
   Filter,
@@ -57,10 +57,17 @@ const OrganizationManagement = () => {
   const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
   const [resendLoadingId, setResendLoadingId] = useState(null);
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
+  // Pagination derived from URL search params
+  const pageParam = searchParams.get('page');
+  const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+
+  const handlePageChange = useCallback((page) => {
+    const params = Object.fromEntries(searchParams.entries());
+    params.page = String(page);
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
   const isInvitePendingAcceptance = (invite) => (invite?.latest_invitation_status || invite?.status || '').toLowerCase() !== 'accepted';
 
@@ -91,13 +98,23 @@ const OrganizationManagement = () => {
     return () => clearTimeout(t);
   }, [searchTerm]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeTab]);
+  const prevSearchRef = useRef(debouncedSearch);
+  const prevStatusRef = useRef(statusFilter);
 
+  // Reset page to 1 when search or filter changes
   useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch, statusFilter]);
+    if (prevSearchRef.current !== debouncedSearch || prevStatusRef.current !== statusFilter) {
+      prevSearchRef.current = debouncedSearch;
+      prevStatusRef.current = statusFilter;
+      
+      const page = searchParams.get('page');
+      if (page && page !== '1') {
+        const params = Object.fromEntries(searchParams.entries());
+        params.page = '1';
+        setSearchParams(params);
+      }
+    }
+  }, [debouncedSearch, statusFilter, searchParams, setSearchParams]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -204,9 +221,6 @@ const OrganizationManagement = () => {
       }
     }
   };
-
-  if (loading && !hasFetchedOnce) return <OrganizationListSkeleton />;
-
   const currentList = activeTab === 'invitations' ? invites : orgs;
 
   return (
@@ -279,8 +293,10 @@ const OrganizationManagement = () => {
       </div>
 
       <div className={styles.listContainer}>
-        <div className={styles.listGrid}>
-          {currentList.length === 0 ? (
+        {loading ? (
+          <OrganizationListSkeleton count={4} />
+        ) : currentList.length === 0 ? (
+          <div className={styles.listGrid}>
             <div className={styles.emptyState}>
               <div className={styles.emptyIllustration}>
                 <Building size={64} />
@@ -292,119 +308,119 @@ const OrganizationManagement = () => {
                 <UserPlus size={18} /> Invite First Organization
               </button>
             </div>
-          ) : (
-            <>
-              {currentList.map((item) => (
-                <div
-                  key={item.id}
-                  className={styles.listCard}
-                  onClick={() => navigate(`/organizations/${item.id}`)}
-                >
-                  <div className={styles.cardTopBar}>
-                    <div className={styles.timeLabel}>
-                      <Timer size={14} />
-                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
+          </div>
+        ) : (
+          <div className={styles.listGrid}>
+            {currentList.map((item) => (
+              <div
+                key={item.id}
+                className={styles.listCard}
+                onClick={() => navigate(`/organizations/${item.id}`)}
+              >
+                <div className={styles.cardTopBar}>
+                  <div className={styles.timeLabel}>
+                    <Timer size={14} />
+                    <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Sent' : 'Registered'} {new Date(item.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+
+                <div className={styles.cardMainContent}>
+                  <h3 className={`${styles.orgNameTitle} whitespace-pre-wrap break-all`}>
+                    {item.name}
+                  </h3>
+
+                  <div className={styles.metaRow}>
+                    <div className={styles.metaItem}>
+                      <MapPin size={16} />
+                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Medical Partner' : (item.city || 'Location Pending')}</span>
                     </div>
+                    <div className={styles.metaDivider}></div>
+                    <div className={styles.metaItem}>
+                      <Building size={16} />
+                      <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Facility' : (item.org_type || 'Hospital')}</span>
+                    </div>
+                    {(activeTab === 'registry' && item.verification_status === 'approved') && (
+                      <div className={`   gap-1 flex items-center justify-center `}>
+                        <CheckCircle2 size={14} />
+                        <span>Verified</span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className={styles.cardMainContent}>
-                    <h3 className={`${styles.orgNameTitle} whitespace-pre-wrap break-all`}>
-                      {item.name}
-                    </h3>
+                  <div className={styles.tagCloud}>
+                    {activeTab === 'registry' ? (
+                      <>
+                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.org_type || 'Facility'}</span>
+                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.city || 'Remote'}</span>
+                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.state || 'India'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className={`${styles.tag} ${(item.latest_invitation_status || item.status) === 'expired' ? styles.tagExpired : styles.tagPending} whitespace-pre-wrap break-all`}>
+                          {(item.latest_invitation_status || item.status) === 'expired' ? 'Expired Invite' : 'Pending Invite'}
+                        </span>
+                        <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item?.contact_email || item?.latest_invitation_contact_email}</span>
+                      </>
+                    )}
+                  </div>
 
-                    <div className={styles.metaRow}>
-                      <div className={styles.metaItem}>
-                        <MapPin size={16} />
-                        <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Medical Partner' : (item.city || 'Location Pending')}</span>
+                  <div className={styles.cardBottomRow}>
+                    <div className={styles.statsGroup}>
+                      <div className={styles.statBox}>
+                        <span className={styles.statLabel}>Organization Type</span>
+                        <span className={`${styles.statValue} whitespace-pre-wrap break-all`}>{activeTab === 'invitations' ? 'Medical Partner' : (item.org_type || 'Hospital')}</span>
                       </div>
-                      <div className={styles.metaDivider}></div>
-                      <div className={styles.metaItem}>
-                        <Building size={16} />
-                        <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Facility' : (item.org_type || 'Hospital')}</span>
+                      <div className={styles.statDivider}></div>
+                      <div className={styles.statBox}>
+                        <span className={styles.statLabel}>Current Status</span>
+                        <span className={`${styles.statValue} whitespace-pre-wrap break-all`} style={{
+                          color: getStatusColor(item.verification_status)
+                        }}>
+                          {item.verification_status}
+                        </span>
                       </div>
-                      {(activeTab === 'registry' && item.verification_status === 'approved') && (
-                        <div className={`   gap-1 flex items-center justify-center `}>
-                          <CheckCircle2 size={14} />
-                          <span>Verified</span>
-                        </div>
-                      )}
                     </div>
 
-                    <div className={styles.tagCloud}>
-                      {activeTab === 'registry' ? (
-                        <>
-                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.org_type || 'Facility'}</span>
-                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.city || 'Remote'}</span>
-                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item.state || 'India'}</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className={`${styles.tag} ${(item.latest_invitation_status || item.status) === 'expired' ? styles.tagExpired : styles.tagPending} whitespace-pre-wrap break-all`}>
-                            {(item.latest_invitation_status || item.status) === 'expired' ? 'Expired Invite' : 'Pending Invite'}
-                          </span>
-                          <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item?.contact_email || item?.latest_invitation_contact_email}</span>
-                        </>
-                      )}
-                    </div>
-
-                    <div className={styles.cardBottomRow}>
-                      <div className={styles.statsGroup}>
-                        <div className={styles.statBox}>
-                          <span className={styles.statLabel}>Organization Type</span>
-                          <span className={`${styles.statValue} whitespace-pre-wrap break-all`}>{activeTab === 'invitations' ? 'Medical Partner' : (item.org_type || 'Hospital')}</span>
-                        </div>
-                        <div className={styles.statDivider}></div>
-                        <div className={styles.statBox}>
-                          <span className={styles.statLabel}>Current Status</span>
-                          <span className={`${styles.statValue} whitespace-pre-wrap break-all`} style={{
-                            color: getStatusColor(item.verification_status)
-                          }}>
-                            {item.verification_status}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className={styles.actionGroup}>
+                    <div className={styles.actionGroup}>
+                      <button
+                        className={styles.viewDetailsBtn}
+                        onClick={(e) => handleViewDetails(e, item)}
+                      >
+                        View details
+                      </button>
+                      {(activeTab === 'invitations' ||
+                        (activeTab === 'registry' &&
+                          (item.verification_status?.toLowerCase() === 'pending' ||
+                           item.verification_status?.toLowerCase() === 'rejected' ||
+                           item.verification_status?.toLowerCase() === 'reject'))) && (
                         <button
-                          className={styles.viewDetailsBtn}
-                          onClick={(e) => handleViewDetails(e, item)}
+                          className={styles.primaryActionBtn}
+                          disabled={resendLoadingId === item.id}
+                          onClick={(e) => handleManageInvite(e, item, 'resend')}
                         >
-                          View details
+                          {resendLoadingId === item.id ? (
+                            <div className='flex gap-2'>
+                              <span className={styles.btnSpinner} />
+                             <span>Resending...</span> 
+                            </div>
+                          ) : (
+                            'Resend Invite'
+                          )}
                         </button>
-                        {(activeTab === 'invitations' ||
-                          (activeTab === 'registry' &&
-                            (item.verification_status?.toLowerCase() === 'pending' ||
-                             item.verification_status?.toLowerCase() === 'rejected' ||
-                             item.verification_status?.toLowerCase() === 'reject'))) && (
-                          <button
-                            className={styles.primaryActionBtn}
-                            disabled={resendLoadingId === item.id}
-                            onClick={(e) => handleManageInvite(e, item, 'resend')}
-                          >
-                            {resendLoadingId === item.id ? (
-                              <div className='flex gap-2'>
-                                <span className={styles.btnSpinner} />
-                               <span>Resending...</span> 
-                              </div>
-                            ) : (
-                              'Resend Invite'
-                            )}
-                          </button>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
 
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </>
-          )}
-        </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </div>
 
       <Modal
