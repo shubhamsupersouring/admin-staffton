@@ -196,7 +196,7 @@ const OrganizationDetails = () => {
   return (
     <div className={styles.container}>
       <header className={styles.topNav}>
-        <button className={styles.backBtn} onClick={() => navigate('/organizations')}>
+        <button className={styles.backBtn} onClick={() => navigate(-1)}>
           <ArrowLeft size={16} /> Back to Organizations
         </button>
       </header>

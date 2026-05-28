@@ -14,7 +14,7 @@ import {
   Calendar,
   Send
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import styles from './OrganizationManagement.module.css';
 import Modal from '../components/Modal/Modal';
@@ -31,13 +31,23 @@ const ITEMS_PER_PAGE = 10;
 
 const OrganizationManagement = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('registry'); // 'registry' or 'invitations'
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const activeTab = tabParam === 'pending' ? 'invitations' : 'registry';
+
+  useEffect(() => {
+    if (!tabParam) {
+      setSearchParams({ tab: 'all', status: '' }, { replace: true });
+    }
+  }, [tabParam, setSearchParams]);
   const [orgs, setOrgs] = useState([]);
   const [invites, setInvites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  
+  const statusParam = searchParams.get('status');
+  const statusFilter = statusParam !== null ? statusParam : (activeTab === 'invitations' ? 'pending' : '');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({ org_name: '', contact_name: '', contact_email: '' });
@@ -82,11 +92,6 @@ const OrganizationManagement = () => {
   }, [searchTerm]);
 
   useEffect(() => {
-    if (activeTab === 'invitations') {
-      setStatusFilter('pending');
-    } else {
-      setStatusFilter('');
-    }
     setCurrentPage(1);
   }, [activeTab]);
 
@@ -221,13 +226,13 @@ const OrganizationManagement = () => {
         <div className={styles.tabs}>
           <div
             className={`${styles.tab} ${activeTab === 'registry' ? styles.activeTab : ''}`}
-            onClick={() => setActiveTab('registry')}
+            onClick={() => setSearchParams({ tab: 'all', status: '' })}
           >
             All Organizations
           </div>
           <div
             className={`${styles.tab} ${activeTab === 'invitations' ? styles.activeTab : ''}`}
-            onClick={() => setActiveTab('invitations')}
+            onClick={() => setSearchParams({ tab: 'pending', status: 'pending' })}
           >
             Pending Organizations
           </div>
@@ -250,7 +255,7 @@ const OrganizationManagement = () => {
               className={styles.searchInput}
               style={{ paddingLeft: 42 }}
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => setSearchParams({ tab: tabParam || 'all', status: e.target.value })}
             >
               <option value="">All {activeTab === 'invitations' ? 'Invite' : 'Verification'} Status</option>
               {activeTab === 'invitations' ? (
