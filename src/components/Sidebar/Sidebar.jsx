@@ -73,11 +73,11 @@ const Sidebar = ({ isOpen = false, onClose = () => { }, isCollapsed = false, onT
         icon: <Briefcase size={18} />,
         path: '/jobs',
       },
-      {
-        name: 'Entities',
-        icon: <Layers size={18} />,
-        path: '/entities',
-      },
+      // {
+      //   name: 'Entities',
+      //   icon: <Layers size={18} />,
+      //   path: '/entities',
+      // },
       // {
       //   name: 'Users',
       //   icon: <User size={18} />,
