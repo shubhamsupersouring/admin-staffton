@@ -147,17 +147,17 @@ const OrganizationManagement = () => {
 
   const handleViewDetails = (e, item) => {
     e.stopPropagation();
-    if (activeTab === 'registry') {
+    // if (activeTab === 'registry') {
       navigate(`/organizations/${item.id}`);
-      return;
-    }
+    //   return;
+    // }
     // Invitations tab: `item.id` is invitation id; joined org fields come from `item.org_id`
-    if (item.org_id) {
-      navigate(`/organizations/${item.org_id}`);
-      return;
-    }
-    setSelectedInvitation(item);
-    setDetailModalOpen(true);
+    // if (item.org_id) {
+    //   navigate(`/organizations/${item.org_id}`);
+    //   return;
+    // }
+    // setSelectedInvitation(item);
+    // setDetailModalOpen(true);
   };
 
   const handleManageInvite = async (e, item, action = 'resend') => {
@@ -304,7 +304,7 @@ const OrganizationManagement = () => {
 
                   <div className={styles.cardMainContent}>
                     <h3 className={`${styles.orgNameTitle} whitespace-pre-wrap break-all`}>
-                      {activeTab === 'invitations' ? item.org_name : item.name}
+                      {item.name}
                     </h3>
 
                     <div className={styles.metaRow}>
