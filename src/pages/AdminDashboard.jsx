@@ -53,7 +53,7 @@ const PieChartCard = ({ title, subtitle, data }) => {
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
-        <span className={styles.cardTitle}>{title}</span>
+        <span className={styles.cardTitle}>{title}</span>   
         <span className={styles.cardMeta}>Total: {total}</span>
       </div>
       <div className={styles.chartContent}>

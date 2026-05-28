@@ -303,7 +303,7 @@ const   JobsManagement = () => {
             </div>
             <div className={styles.statContent}>
               <span className={styles.statValue}>{stats.underReview}</span>
-              <span className={styles.statLabel}>Under Review</span>
+              <span className={styles.statLabel}>Draft</span>
             </div>
           </div>
           <div className={styles.statCard}>
