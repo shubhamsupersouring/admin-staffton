@@ -293,7 +293,7 @@ const OrganizationManagement = () => {
                 <div
                   key={item.id}
                   className={styles.listCard}
-                  onClick={() => activeTab === 'registry' && navigate(`/organizations/${item.id}`)}
+                  onClick={() => navigate(`/organizations/${item.id}`)}
                 >
                   <div className={styles.cardTopBar}>
                     <div className={styles.timeLabel}>
@@ -318,7 +318,7 @@ const OrganizationManagement = () => {
                         <span className="whitespace-pre-wrap break-all">{activeTab === 'invitations' ? 'Facility' : (item.org_type || 'Hospital')}</span>
                       </div>
                       {(activeTab === 'registry' && item.verification_status === 'approved') && (
-                        <div className={styles.verifiedBadge}>
+                        <div className={`   gap-1 flex items-center justify-center `}>
                           <CheckCircle2 size={14} />
                           <span>Verified</span>
                         </div>
