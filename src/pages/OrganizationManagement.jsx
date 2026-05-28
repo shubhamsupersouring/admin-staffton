@@ -52,7 +52,7 @@ const OrganizationManagement = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
 
-  const isInvitePendingAcceptance = (invite) => (invite?.status || '').toLowerCase() !== 'accepted';
+  const isInvitePendingAcceptance = (invite) => (invite?.latest_invitation_status || invite?.status || '').toLowerCase() !== 'accepted';
 
   const getStatusColor = (status) => {
     if (!status) return '#6b7e92';
@@ -170,11 +170,11 @@ const OrganizationManagement = () => {
         if (!window.confirm('Are you sure you want to revoke this invitation?')) return;
       }
       
-      let inviteId = activeTab === 'invitations' ? item.id : (item.invitation_id || item.invite_id || item.invitation?.id);
+      let inviteId = item.latest_invitation_id || item.invitation_id || item.invite_id || item.invitation?.id;
       
-      if (!inviteId && activeTab === 'registry') {
+      if (!inviteId) {
         const details = await organizationService.getOrganizationDetails(item.id);
-        inviteId = details.data?.invitation?.id;
+        inviteId = details.data?.latest_invitation_id || details.data?.invitation?.id || details.data?.invitation_id;
       }
       
       if (!inviteId) {
@@ -334,8 +334,8 @@ const OrganizationManagement = () => {
                         </>
                       ) : (
                         <>
-                          <span className={`${styles.tag} ${item.status === 'expired' ? styles.tagExpired : styles.tagPending} whitespace-pre-wrap break-all`}>
-                            {item.status === 'expired' ? 'Expired Invite' : 'Pending Invite'}
+                          <span className={`${styles.tag} ${(item.latest_invitation_status || item.status) === 'expired' ? styles.tagExpired : styles.tagPending} whitespace-pre-wrap break-all`}>
+                            {(item.latest_invitation_status || item.status) === 'expired' ? 'Expired Invite' : 'Pending Invite'}
                           </span>
                           <span className={`${styles.tag} whitespace-pre-wrap break-all`}>{item?.contact_email || item?.latest_invitation_contact_email}</span>
                         </>
@@ -377,10 +377,10 @@ const OrganizationManagement = () => {
                             onClick={(e) => handleManageInvite(e, item, 'resend')}
                           >
                             {resendLoadingId === item.id ? (
-                              <>
+                              <div className='flex gap-2'>
                                 <span className={styles.btnSpinner} />
-                                Resending...
-                              </>
+                               <span>Resending...</span> 
+                              </div>
                             ) : (
                               'Resend Invite'
                             )}
@@ -502,7 +502,7 @@ const OrganizationManagement = () => {
               <label>Invite Status</label>
               <div className={styles.inputWrapper}>
                 <Shield size={18} className={styles.inputIcon} />
-                <input className="whitespace-pre-wrap break-all" value={selectedInvitation.status || '-'} readOnly />
+                <input className="whitespace-pre-wrap break-all" value={selectedInvitation.latest_invitation_status || selectedInvitation.status || '-'} readOnly />
               </div>
             </div>
 
@@ -512,7 +512,7 @@ const OrganizationManagement = () => {
                 <Calendar size={18} className={styles.inputIcon} />
                 <input
                   className="whitespace-pre-wrap break-all"
-                  value={selectedInvitation.expires_at ? new Date(selectedInvitation.expires_at).toLocaleString() : '-'}
+                  value={selectedInvitation.latest_invitation_expires_at || selectedInvitation.expires_at ? new Date(selectedInvitation.latest_invitation_expires_at || selectedInvitation.expires_at).toLocaleString() : '-'}
                   readOnly
                 />
               </div>
