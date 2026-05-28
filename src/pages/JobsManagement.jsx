@@ -393,9 +393,9 @@ const   JobsManagement = () => {
               <option>Salary Low → High</option>
             </select>
           </div>
-          <button className={styles.filterBtn} onClick={() => setIsFilterOpen(true)}>
+          {/* <button className={styles.filterBtn} onClick={() => setIsFilterOpen(true)}>
             <Filter size={16} /> Filters
-          </button>
+          </button> */}
         </div>
       </div>
 
