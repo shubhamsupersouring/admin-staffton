@@ -34,6 +34,7 @@ const JobCard = ({ job, onViewDetails }) => {
           <Timer size={14} />
           <span>Posted {new Date(job.created_at).toLocaleDateString()}</span>
         </div>
+
         <span className={`${styles.statusBadge} ${(job.status === 'active' || job.status === 'posted') ? styles.badgeActive : styles.badgePending}`}>
           {job.status || 'draft'}
         </span>
@@ -393,9 +394,6 @@ const   JobsManagement = () => {
               <option>Salary Low → High</option>
             </select>
           </div>
-          {/* <button className={styles.filterBtn} onClick={() => setIsFilterOpen(true)}>
-            <Filter size={16} /> Filters
-          </button> */}
         </div>
       </div>
 
@@ -449,3 +447,4 @@ const   JobsManagement = () => {
 };
 
 export default JobsManagement;
+//hello bhai

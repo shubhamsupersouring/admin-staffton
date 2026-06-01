@@ -29,8 +29,10 @@ const lowercaseEmailFields = (obj) => {
   return obj;
 };
 
+const baseURL =import.meta.env.VITE_ENVIORMENT_VARIABLE == 'production' ? import.meta.env.VITE_API_BASE_URL_PRODUCTION  : import.meta.env.VITE_API_BASE_URL_DEVELOPMENT
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
