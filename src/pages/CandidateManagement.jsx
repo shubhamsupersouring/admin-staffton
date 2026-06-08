@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Users, 
   Search, 
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import styles from './CandidateManagement.module.css';
 import { candidateService } from '../services/candidate.service';
+import { entityService } from '../services/entity.service';
 import toast from 'react-hot-toast';
 import { OrganizationListSkeleton } from '../components/Skeleton';
 import Pagination from '../components/Pagination/Pagination';
@@ -21,19 +22,45 @@ const CandidateManagement = () => {
   const [stats, setStats] = useState({ total: 0, applied: 0, notApplied: 0 });
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [appliedStatus, setAppliedStatus] = useState('');
+  const [roles, setRoles] = useState([]);
+  const [primaryRole, setPrimaryRole] = useState('');
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
 
-  const fetchData = async () => {
+  // Fetch active roles on component mount
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await entityService.getAll({ type: 'role' });
+        const activeRoles = (response.data || []).filter(r => r.is_active);
+        setRoles(activeRoles);
+      } catch (error) {
+        console.error('Error fetching roles:', error);
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  // Debounce search term to optimize API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [statsRes, listRes] = await Promise.all([
         candidateService.getStats(),
         candidateService.getCandidates({ 
           page: currentPage, 
-          search: searchTerm,
+          search: debouncedSearchTerm,
           appliedStatus: appliedStatus,
+          primaryRole: primaryRole,
           limit: 10
         })
       ]);
@@ -51,15 +78,13 @@ const CandidateManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearchTerm, appliedStatus, primaryRole]);
 
+  // Fetch data immediately when current page, filters, or debounced search term changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchData();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [searchTerm, currentPage, appliedStatus]);
+    fetchData();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [fetchData]);
 
   if (loading && candidates.length === 0) {
     return <OrganizationListSkeleton />;
@@ -121,19 +146,39 @@ const CandidateManagement = () => {
           />
         </div>
 
-        <div className={styles.filterWrapper}>
-          <Filter size={18} className={styles.filterIcon} />
-          <select 
-            value={appliedStatus}
-            onChange={(e) => {
-              setAppliedStatus(e.target.value);
-              setCurrentPage(1);
-            }}
-          >
-            <option value="">All Status</option>
-            <option value="applied">Applied</option>
-            <option value="not_applied">Not Applied</option>
-          </select>
+        <div className={styles.filtersGroup}>
+          <div className={styles.filterWrapper}>
+            <Briefcase size={18} className={styles.filterIcon} />
+            <select 
+              value={primaryRole}
+              onChange={(e) => {
+                setPrimaryRole(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="">All Roles</option>
+              {roles.map((r) => (
+                <option key={r.id} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.filterWrapper}>
+            <Filter size={18} className={styles.filterIcon} />
+            <select 
+              value={appliedStatus}
+              onChange={(e) => {
+                setAppliedStatus(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="">All Status</option>
+              <option value="applied">Applied</option>
+              <option value="not_applied">Not Applied</option>
+            </select>
+          </div>
         </div>
       </div>
 

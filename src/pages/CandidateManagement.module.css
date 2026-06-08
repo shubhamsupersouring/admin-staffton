@@ -93,6 +93,12 @@
   gap: 16px;
 }
 
+.filtersGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .searchWrapper {
   position: relative;
   flex: 1;
@@ -231,6 +237,8 @@
   .statsGrid { grid-template-columns: 1fr; }
   .filtersSection { flex-direction: column; align-items: stretch; }
   .searchWrapper { max-width: none; }
+  .filtersGroup { flex-direction: column; width: 100%; gap: 12px; }
+  .filterWrapper { width: 100%; }
   .table { display: block; overflow-x: auto; }
 }
 
