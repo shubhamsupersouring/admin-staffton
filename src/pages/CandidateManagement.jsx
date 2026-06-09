@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Users, 
-  Search, 
-  Filter, 
-  Briefcase, 
+import {
+  Users,
+  Search,
+  Filter,
+  Briefcase,
   UserX, 
   UserCheck,
   Mail,
@@ -189,6 +189,7 @@ const CandidateManagement = () => {
             <tr>
               <th>Candidate</th>
               <th>Primary Role</th>
+              <th>Specialisation</th>
               <th>Location</th>
               <th>Experience</th>
               <th>Status</th>
@@ -204,6 +205,17 @@ const CandidateManagement = () => {
                     <div className={`${styles.candidateEmail} whitespace-pre-wrap break-all`}>{c.email}</div>
                   </td>
                   <td>{c.primary_role || 'Not Set'}</td>
+                  <td>
+                    {c.primary_specialisation && c.primary_specialisation.length > 0 ? (
+                      <div className="flex flex-wrap gap-1 max-w-[220px]">
+                        {c.primary_specialisation.map((spec, index) => (
+                          <span key={index} className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px] font-medium whitespace-pre-wrap break-words">
+                            {spec}
+                          </span>
+                        ))}
+                      </div>
+                    ) : 'N/A'}
+                  </td>
                   <td>
                     {c.city ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -222,7 +234,7 @@ const CandidateManagement = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}>
                   No candidates found
                 </td>
               </tr>
