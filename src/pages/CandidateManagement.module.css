@@ -157,8 +157,15 @@
   overflow: hidden;
 }
 
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .table {
   width: 100%;
+  min-width: 1000px;
   border-collapse: collapse;
 }
 
@@ -200,6 +207,8 @@
 
 .badgeApplied { background: #f0fff4; color: #16a34a; }
 .badgeNotApplied { background: #f1f5f9; color: #64748b; }
+.badgeTrue { background: #f0fff4; color: #16a34a; }
+.badgeFalse { background: #fff5f5; color: #dc2626; }
 
 .pagination {
   display: flex;
@@ -239,7 +248,6 @@
   .searchWrapper { max-width: none; }
   .filtersGroup { flex-direction: column; width: 100%; gap: 12px; }
   .filterWrapper { width: 100%; }
-  .table { display: block; overflow-x: auto; }
 }
 
 /* Pagination */
@@ -308,3 +316,181 @@
   color: white !important;
   border-color: #0fb8a4 !important;
 }
+
+.nameLink {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.nameLink:hover {
+  color: #0fb8a4;
+  text-decoration: underline;
+}
+
+.actionsCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover {
+  border-color: #0fb8a4;
+  color: #0fb8a4;
+  background: #f0fdfa;
+}
+
+.deleteBtn:hover {
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+  background: #fef2f2 !important;
+}
+
+.confirmWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 12px;
+}
+
+.warnIcon {
+  color: #ef4444;
+  margin-bottom: 16px;
+}
+
+.confirmText {
+  font-size: 15px;
+  color: #334155;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.confirmSubtext {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 24px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.modalCancel {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #64748b;
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.modalCancel:hover {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.modalDelete {
+  flex: 1;
+  padding: 10px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.modalDelete:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.modalDelete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 20px;
+  margin-left: 4px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e2e8f0;
+  transition: .3s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+  background-color: #0fb8a4;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+.sliderDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.badgeActive {
+  background: #f0fff4;
+  color: #16a34a;
+}
+
+.badgeInactive {
+  background: #fff5f5;
+  color: #dc2626;
+}
+
+

@@ -755,3 +755,80 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Job Card Enhancements */
+.dotSeparator {
+  color: var(--text-light);
+  margin: 0 6px;
+  font-size: 10px;
+}
+
+.jobIdDisplay {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'Inter', system-ui, sans-serif;
+  border: 1px solid #e2e8f0;
+}
+
+.pipelineRow {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+  width: 100%;
+}
+
+.pipelineCard {
+  background: var(--white);
+  border: 1.5px dashed #e2e8f0;
+  border-radius: 8px;
+  padding: 16px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.pipelineCard:hover {
+  border-color: var(--teal);
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.pipelineNumber {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.pipelineLabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .pipelineRow {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .pipelineCard {
+    padding: 12px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pipelineRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

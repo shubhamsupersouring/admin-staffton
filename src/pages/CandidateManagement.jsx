@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Users,
   Search,
@@ -8,7 +9,9 @@ import {
   UserCheck,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Eye,
+  List
 } from 'lucide-react';
 import styles from './CandidateManagement.module.css';
 import { candidateService } from '../services/candidate.service';
@@ -17,7 +20,20 @@ import toast from 'react-hot-toast';
 import { OrganizationListSkeleton } from '../components/Skeleton';
 import Pagination from '../components/Pagination/Pagination';
 
+const formatRole = (role) => {
+  if (!role) return 'Not Set';
+  const roleLower = role.toLowerCase();
+  if (roleLower === 'non_clinical') return 'Non-Clinical';
+  if (roleLower === 'doctor') return 'Doctor';
+  if (roleLower === 'nurse') return 'Nurse';
+  if (roleLower === 'clinical') return 'Clinical';
+  return role
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 const CandidateManagement = () => {
+  const navigate = useNavigate();
   const [candidates, setCandidates] = useState([]);
   const [stats, setStats] = useState({ total: 0, applied: 0, notApplied: 0 });
   const [loading, setLoading] = useState(true);
@@ -28,6 +44,28 @@ const CandidateManagement = () => {
   const [roles, setRoles] = useState([]);
   const [primaryRole, setPrimaryRole] = useState('');
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
+  const [limit, setLimit] = useState(() => {
+    const savedLimit = localStorage.getItem('candidate_page_limit');
+    return savedLimit ? Number(savedLimit) : 20;
+  });
+
+  // Toggle Candidate Status state
+  const [updatingStatusId, setUpdatingStatusId] = useState(null);
+
+  const handleToggleActive = async (id, currentStatus) => {
+    setUpdatingStatusId(id);
+    const newStatus = !currentStatus;
+    try {
+      await candidateService.updateStatus(id, newStatus);
+      toast.success(`Candidate ${newStatus ? 'activated' : 'deactivated'} successfully`);
+      setCandidates(prev => prev.map(c => c.id === id ? { ...c, is_active: newStatus } : c));
+    } catch (error) {
+      console.error('Error updating candidate status:', error);
+      toast.error(error.response?.data?.message || 'Failed to update candidate status');
+    } finally {
+      setUpdatingStatusId(null);
+    }
+  };
 
   // Fetch active roles on component mount
   useEffect(() => {
@@ -61,7 +99,7 @@ const CandidateManagement = () => {
           search: debouncedSearchTerm,
           appliedStatus: appliedStatus,
           primaryRole: primaryRole,
-          limit: 10
+          limit: limit
         })
       ]);
       
@@ -78,7 +116,7 @@ const CandidateManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, debouncedSearchTerm, appliedStatus, primaryRole]);
+  }, [currentPage, debouncedSearchTerm, appliedStatus, primaryRole, limit]);
 
   // Fetch data immediately when current page, filters, or debounced search term changes
   useEffect(() => {
@@ -179,12 +217,30 @@ const CandidateManagement = () => {
               <option value="not_applied">Not Applied</option>
             </select>
           </div>
+
+          <div className={styles.filterWrapper}>
+            <List size={18} className={styles.filterIcon} />
+            <select 
+              value={limit}
+              onChange={(e) => {
+                const newLimit = Number(e.target.value);
+                setLimit(newLimit);
+                localStorage.setItem('candidate_page_limit', newLimit);
+                setCurrentPage(1);
+              }}
+            >
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={50}>50 per page</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Table Section */}
       <div className={styles.listContainer}>
-        <table className={styles.table}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
           <thead>
             <tr>
               <th>Candidate</th>
@@ -193,7 +249,9 @@ const CandidateManagement = () => {
               <th>Location</th>
               <th>Experience</th>
               <th>Status</th>
+              <th>Open to Global</th>
               <th>Registered</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -201,10 +259,15 @@ const CandidateManagement = () => {
               candidates.map((c) => (
                 <tr key={c.id}>
                   <td>
-                    <div className={`${styles.candidateName} whitespace-pre-wrap break-all`}>{c.full_name}</div>
+                    <div 
+                      className={`${styles.candidateName} ${styles.nameLink} whitespace-pre-wrap break-all`}
+                      onClick={() => navigate(`/candidates/${c.id}`)}
+                    >
+                      {c.full_name}
+                    </div>
                     <div className={`${styles.candidateEmail} whitespace-pre-wrap break-all`}>{c.email}</div>
                   </td>
-                  <td>{c.primary_role || 'Not Set'}</td>
+                  <td>{formatRole(c.primary_role)}</td>
                   <td>
                     {c.primary_specialisation && c.primary_specialisation.length > 0 ? (
                       <div className="flex flex-wrap gap-1 max-w-[220px]">
@@ -225,22 +288,57 @@ const CandidateManagement = () => {
                   </td>
                   <td>{c.years_experience ? `${c.years_experience} Years` : 'N/A'}</td>
                   <td>
-                    <span className={`${styles.badge} ${c.has_applied ? styles.badgeApplied : styles.badgeNotApplied}`}>
-                      {c.has_applied ? 'Applied' : 'No Application'}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
+                      <span className={`${styles.badge} ${c.has_applied ? styles.badgeApplied : styles.badgeNotApplied}`}>
+                        {c.has_applied ? 'Applied' : 'No Application'}
+                      </span>
+                      <span className={`${styles.badge} ${c.is_active !== false ? styles.badgeActive : styles.badgeInactive}`}>
+                        {c.is_active !== false ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    {c.open_to_global === true ? (
+                      <span className={`${styles.badge} ${styles.badgeTrue}`}>Yes</span>
+                    ) : c.open_to_global === false ? (
+                      <span className={`${styles.badge} ${styles.badgeFalse}`}>No</span>
+                    ) : (
+                      '-'
+                    )}
                   </td>
                   <td>{new Date(c.created_at).toLocaleDateString()}</td>
+                  <td>
+                    <div className={styles.actionsCell}>
+                      <button
+                        className={styles.actionBtn}
+                        onClick={() => navigate(`/candidates/${c.id}`)}
+                        title="View Details"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <label className={styles.switch} title={c.is_active !== false ? "Deactivate Candidate" : "Activate Candidate"}>
+                        <input
+                          type="checkbox"
+                          checked={c.is_active !== false}
+                          onChange={() => handleToggleActive(c.id, c.is_active !== false)}
+                          disabled={updatingStatusId === c.id}
+                        />
+                        <span className={`${styles.slider} ${updatingStatusId === c.id ? styles.sliderDisabled : ''}`} />
+                      </label>
+                    </div>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}>
+                <td colSpan="9" style={{ textAlign: 'center', padding: '40px' }}>
                   No candidates found
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        </div>
 
         {/* Pagination Section */}
         <Pagination 

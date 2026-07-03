@@ -29,5 +29,24 @@ export const candidateService = {
   getCandidateDetails: async (id) => {
     const response = await apiClient.get(API_ENDPOINTS.ADMIN.CANDIDATE_DETAIL(id));
     return response.data;
+  },
+
+  /**
+   * Delete a specific candidate
+   * @param {string} id
+   */
+  deleteCandidate: async (id) => {
+    const response = await apiClient.delete(API_ENDPOINTS.CANDIDATES.DETAILS(id));
+    return response.data;
+  },
+
+  /**
+   * Update active status of a candidate
+   * @param {string} id
+   * @param {boolean} isActive
+   */
+  updateStatus: async (id, isActive) => {
+    const response = await apiClient.put(API_ENDPOINTS.CANDIDATES.STATUS(id), { is_active: isActive });
+    return response.data;
   }
 };

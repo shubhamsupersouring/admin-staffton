@@ -23,8 +23,18 @@ const JobCard = ({ job, onViewDetails }) => {
   const navigate = useNavigate();
   const displayValue = (val) => {
     if (!val) return '';
+    if (Array.isArray(val)) {
+      return val.map(item => displayValue(item)).filter(Boolean).join(', ');
+    }
     if (typeof val === 'object') return val.name || val.title || val.label || val.value || '';
     return val;
+  };
+
+  const getCityState = () => {
+    const city = displayValue(job.city) || displayValue(job.org_city);
+    const state = displayValue(job.state) || displayValue(job.org_state);
+    if (city && state) return `${city}, ${state}`;
+    return city || state || 'Remote';
   };
 
   return (
@@ -33,6 +43,12 @@ const JobCard = ({ job, onViewDetails }) => {
         <div className={styles.timeLabel}>
           <Timer size={14} />
           <span>Posted {new Date(job.created_at).toLocaleDateString()}</span>
+          {job.job_id_display && (
+            <>
+              <span className={styles.dotSeparator}>•</span>
+              <span className={styles.jobIdDisplay}>{job.job_id_display}</span>
+            </>
+          )}
         </div>
 
         <span className={`${styles.statusBadge} ${(job.status === 'active' || job.status === 'posted') ? styles.badgeActive : styles.badgePending}`}>
@@ -46,13 +62,13 @@ const JobCard = ({ job, onViewDetails }) => {
         <div className={styles.metaRow}>
           <div className={styles.metaItem}>
             <MapPin size={16} />
-            <span>{displayValue(job.city) || displayValue(job.org_city) || 'Remote'}</span>
+            <span>{getCityState()}</span>
           </div>
           <div className={styles.metaItem}>
             <Building size={16} />
             <span>{displayValue(job.organisation_name) || 'Staffton Partner'}</span>
           </div>
-          {job.isUrgent && <span className={styles.urgentBadge}>Urgent</span>}
+          {displayValue(job.urgency) && <span className={styles.urgentBadge}>{displayValue(job.urgency)}</span>}
         </div>
 
         <div className={styles.tagCloud}>
@@ -61,7 +77,38 @@ const JobCard = ({ job, onViewDetails }) => {
           {Array.isArray(job.job_type) ? job.job_type.map((t, idx) => (
             displayValue(t) ? <span key={t?.id || idx} className={styles.tag}>{displayValue(t)}</span> : null
           )) : (displayValue(job.job_type) ? <span className={styles.tag}>{displayValue(job.job_type)}</span> : <span className={styles.tag}>Full-Time</span>)}
+          {displayValue(job.shift_type) ? <span className={styles.tag}>{displayValue(job.shift_type)}</span> : null}
+          {job.contract_duration ? <span className={styles.tag}>Contract: {job.contract_duration}</span> : null}
         </div>
+
+        {job.pipeline && (
+          <div className={styles.pipelineRow}>
+            <div className={styles.pipelineCard}>
+              <span className={styles.pipelineNumber}>{job.pipeline.applied || 0}</span>
+              <span className={styles.pipelineLabel}>Applied</span>
+            </div>
+            <div className={styles.pipelineCard}>
+              <span className={styles.pipelineNumber}>{job.pipeline.shortlisted || 0}</span>
+              <span className={styles.pipelineLabel}>AI Shortlisted</span>
+            </div>
+            <div className={styles.pipelineCard}>
+              <span className={styles.pipelineNumber}>{job.pipeline.interview || 0}</span>
+              <span className={styles.pipelineLabel}>Interview</span>
+            </div>
+            <div className={styles.pipelineCard}>
+              <span className={styles.pipelineNumber}>{job.pipeline.onhold || 0}</span>
+              <span className={styles.pipelineLabel}>Onhold</span>
+            </div>
+            <div className={styles.pipelineCard}>
+              <span className={styles.pipelineNumber}>{job.pipeline.hired || 0}</span>
+              <span className={styles.pipelineLabel}>Hired</span>
+            </div>
+            <div className={styles.pipelineCard}>
+              <span className={styles.pipelineNumber}>{job.pipeline.rejected || 0}</span>
+              <span className={styles.pipelineLabel}>Rejected</span>
+            </div>
+          </div>
+        )}
 
         <div className={styles.cardBottomRow}>
           <div className={styles.statsGroup}>
@@ -74,6 +121,10 @@ const JobCard = ({ job, onViewDetails }) => {
               <span className={`${styles.statBoxValue} ${styles.budgetValue}`}>
                 {formatCompensation(job.salary_min)} - {formatCompensation(job.salary_max, { withCurrencyPrefix: false })} /month
               </span>
+            </div>
+            <div className={styles.statBox}>
+              <span className={styles.statBoxLabel}>Openings</span>
+              <span className={styles.statBoxValue}>{job.openings_count || 1}</span>
             </div>
           </div>
 

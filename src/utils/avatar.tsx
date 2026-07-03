@@ -61,7 +61,7 @@ export function Avatar({ name, size = "lg", imageUrl, alt }: AvatarProps) {
                 />
             ) : (
                 <span
-                    className="absolute inset-0 flex text-black select-none items-center text-white justify-center leading-none"
+                    className="absolute inset-0 flex bg-green-300 select-none items-center text-white justify-center leading-none"
                     style={{ lineHeight: 1 }}
                 >
                     {initials}

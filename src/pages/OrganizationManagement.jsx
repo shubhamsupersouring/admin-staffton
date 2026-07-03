@@ -376,7 +376,7 @@ const OrganizationManagement = () => {
                         <span className={`${styles.statValue} whitespace-pre-wrap break-all`} style={{
                           color: getStatusColor(item.verification_status)
                         }}>
-                          {item.verification_status}
+                          {item.verification_status.charAt(0).toUpperCase() + item.verification_status.slice(1)}
                         </span>
                       </div>
                     </div>

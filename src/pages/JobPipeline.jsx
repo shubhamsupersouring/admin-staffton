@@ -24,12 +24,41 @@ import { useJobPipelineStats, useApplicationChat } from '../hooks/useJobPipeline
 import toast from 'react-hot-toast';
 import { Avatar } from '../utils/avatar';
 
+const statusMap = {
+  'Applied': 'applied',
+  'Under Review': 'under_review',
+  'Shortlisted': 'shortlisted',
+  'Interview': 'interview',
+  'Offered': 'offered',
+  'Hired': 'hired',
+  'Rejected': 'rejected'
+};
+
+const statusToTab = {
+  'applied': 'Applied',
+  'under_review': 'Under Review',
+  'shortlisted': 'Shortlisted',
+  'interview': 'Interview',
+  'offered': 'Offered',
+  'hired': 'Hired',
+  'rejected': 'Rejected',
+  'offer_declined': 'Rejected'
+};
+
 const JobPipeline = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const jobId = searchParams.get('jobId');
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('Applied');
+  const tabParam = searchParams.get('tab') || 'applied';
+  const activeTab = statusToTab[tabParam] || 'Applied';
+
+  const handleTabChange = (newTab) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', statusMap[newTab]);
+    setSearchParams(newParams);
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, page: 1, pageSize: 10, totalPages: 1 });
@@ -299,16 +328,6 @@ const JobPipeline = () => {
     'Rejected'
   ];
 
-  const statusMap = {
-    'Applied': 'applied',
-    'Under Review': 'under_review',
-    'Shortlisted': 'shortlisted',
-    'Interview': 'interview',
-    'Offered': 'offered',
-    'Hired': 'hired',
-    'Rejected': 'rejected'
-  };
-
   const fetchCandidates = useCallback(async () => {
     if (!jobId) return;
 
@@ -429,10 +448,7 @@ const JobPipeline = () => {
             return (
               <button
                 key={tab}
-                onClick={() => {
-                  setActiveTab(tab);
-                  setPagination(prev => ({ ...prev, page: 1 }));
-                }}
+                onClick={() => handleTabChange(tab)}
                 className={`${styles.tab} flex gap-1 ${activeTab === tab ? styles.activeTab : ''}`}
               >
                 {tab}

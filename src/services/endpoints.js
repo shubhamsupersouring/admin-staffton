@@ -37,6 +37,7 @@ export const API_ENDPOINTS = {
     LIST: '/admin/candidates',
     STATS: '/admin/candidates/stats',
     DETAILS: (id) => `/admin/candidates/${id}`,
+    STATUS: (id) => `/admin/candidates/${id}/status`,
   },
   USERS: {
     LIST: '/admin/users',
