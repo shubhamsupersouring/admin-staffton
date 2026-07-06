@@ -179,9 +179,7 @@ const CandidateDetail = () => {
           <div className={styles.titleArea}>
             <div className={styles.titleRow}>
               <h1 className={styles.title}>{fullName}</h1>
-              <span className={`${styles.statusPill} ${candidate.has_applied ? styles.applied : styles.notApplied}`}>
-                {candidate.has_applied ? 'Applied' : 'No Application'}
-              </span>
+          
             </div>
             <div className={styles.metaRow}>
               <span className={styles.metaTag}>

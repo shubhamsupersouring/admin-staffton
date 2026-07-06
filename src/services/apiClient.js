@@ -30,8 +30,8 @@ const lowercaseEmailFields = (obj) => {
 };
 
 //const baseURL =import.meta.env.VITE_ENVIORMENT_VARIABLE == 'production' ? import.meta.env.VITE_API_BASE_URL_PRODUCTION  : import.meta.env.VITE_API_BASE_URL_DEVELOPMENT
- const baseURL = 'https://dev-api.stafftonhealth.com/api/v1'
-// const baseURL = 'https://api.stafftonhealth.com/api/v1'
+ //const baseURL = 'https://dev-api.stafftonhealth.com/api/v1'
+const baseURL = 'https://api.stafftonhealth.com/api/v1'
 const apiClient = axios.create({
   baseURL: baseURL,
   headers: {
