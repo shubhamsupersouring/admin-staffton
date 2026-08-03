@@ -7,6 +7,25 @@ import styles from './AdminLayout.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+const ROUTE_LABELS = {
+  'hospital-join-requests': 'Hospital Join Requests',
+  organizations: 'Organizations',
+  candidates: 'Candidates',
+  jobs: 'Jobs',
+  settings: 'Settings & Profile',
+  pipeline: 'Pipeline',
+  entities: 'Entities',
+  users: 'Users',
+};
+
+const formatSegmentLabel = (segment) => {
+  if (ROUTE_LABELS[segment]) return ROUTE_LABELS[segment];
+  return segment
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const AdminLayout = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -25,7 +44,7 @@ const AdminLayout = () => {
     paths.forEach((p, i) => {
       currentPath += `/${p}`;
       const isLast = i === paths.length - 1;
-      let label = p.charAt(0).toUpperCase() + p.slice(1);
+      let label = formatSegmentLabel(p);
 
       if (isLast && UUID_RE.test(p)) {
         label = detailLabel || 'Organization';

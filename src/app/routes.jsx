@@ -14,6 +14,7 @@ import JobPipeline from '../pages/JobPipeline';
 import UserManagement from '../pages/UserManagement';
 import CandidateManagement from '../pages/CandidateManagement';
 import CandidateDetail from '../pages/Candidate-Detail';
+import HospitalJoinRequests from '../pages/HospitalJoinRequests';
 import NotFound from '../pages/NotFound';
 
 // Organization Jobs
@@ -42,6 +43,7 @@ export const routes = [
       { path: 'users', element: <UserManagement /> },
       { path: 'candidates', element: <CandidateManagement /> },
       { path: 'candidates/:id', element: <CandidateDetail /> },
+      { path: 'hospital-join-requests', element: <HospitalJoinRequests /> },
       { path: 'admins', element: <Navigate to="/settings" replace /> },
       { path: '*', element: <NotFound /> },
     ],

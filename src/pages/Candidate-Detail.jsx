@@ -23,7 +23,7 @@ import { useBreadcrumbDetail } from '../contexts/BreadcrumbDetailContext';
 import { OrganizationDetailsSkeleton } from '../components/Skeleton';
 import { Avatar } from '../utils/avatar';
 import styles from './Candidate-Detail.module.css';
-
+import { formatRole } from '../utils/formatRole';
 // Helper function to format date
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
@@ -179,11 +179,11 @@ const CandidateDetail = () => {
           <div className={styles.titleArea}>
             <div className={styles.titleRow}>
               <h1 className={styles.title}>{fullName}</h1>
-          
+             
             </div>
             <div className={styles.metaRow}>
               <span className={styles.metaTag}>
-                <Briefcase size={14} className={styles.metaIcon} /> {role}
+                <Briefcase size={14} className={styles.metaIcon} /> {formatRole(role)}
               </span>
               <span className={styles.metaTag}>
                 <MapPin size={14} className={styles.metaIcon} /> {location}

@@ -87,18 +87,19 @@ const JobCard = ({ job, onViewDetails }) => {
               <span className={styles.pipelineNumber}>{job.pipeline.applied || 0}</span>
               <span className={styles.pipelineLabel}>Applied</span>
             </div>
+             <div className={styles.pipelineCard}>
+              <span className={styles.pipelineNumber}>{job.pipeline.onhold || 0}</span>
+              <span className={styles.pipelineLabel}>In Review</span>
+            </div>
             <div className={styles.pipelineCard}>
               <span className={styles.pipelineNumber}>{job.pipeline.shortlisted || 0}</span>
-              <span className={styles.pipelineLabel}>AI Shortlisted</span>
+              <span className={styles.pipelineLabel}> Shortlisted</span>
             </div>
             <div className={styles.pipelineCard}>
               <span className={styles.pipelineNumber}>{job.pipeline.interview || 0}</span>
               <span className={styles.pipelineLabel}>Interview</span>
             </div>
-            <div className={styles.pipelineCard}>
-              <span className={styles.pipelineNumber}>{job.pipeline.onhold || 0}</span>
-              <span className={styles.pipelineLabel}>Onhold</span>
-            </div>
+          
             <div className={styles.pipelineCard}>
               <span className={styles.pipelineNumber}>{job.pipeline.hired || 0}</span>
               <span className={styles.pipelineLabel}>Hired</span>

@@ -15,7 +15,8 @@ import {
   FileText,
   Mail,
   Phone,
-  MessageSquare
+  MessageSquare,
+  Download
 } from 'lucide-react';
 import styles from './JobPipeline.module.css';
 import { jobService } from '../services/job.service';
@@ -154,6 +155,48 @@ const JobPipeline = () => {
               {parsed.status && (
                 <div className={`${styles.statusBadge} ${styles[parsed.status]}`}>
                   Status: {parsed.status}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        if (parsed && parsed.type === 'offer_invitation') {
+          return (
+            <div className={styles.invitationCard}>
+              <div className={styles.invitationHeader}>
+                <FileText size={16} />
+                <h4>Offer Invitation</h4>
+              </div>
+
+              <div className={styles.invitationDetails}>
+                {parsed.salary && (
+                  <div className={styles.inviteDetailItem}>
+                    <strong>Salary:</strong> <span>{parsed.salary}</span>
+                  </div>
+                )}
+
+                {parsed.file_url && (
+                  <a
+                    href={parsed.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.offerFileLink}
+                  >
+                    <div className={styles.offerFileRow}>
+                      <FileText size={18} />
+                      <span className={styles.offerFileName}>
+                        {parsed.file_name || 'View Offer Letter'}
+                      </span>
+                      <Download size={16} />
+                    </div>
+                  </a>
+                )}
+              </div>
+
+              {parsed.status && (
+                <div className={`${styles.statusBadge} ${styles[parsed.status]}`}>
+                  {parsed.status}
                 </div>
               )}
             </div>

@@ -11,7 +11,8 @@ import {
   Briefcase,
   User,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Building2,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 import { logout } from '../../features/auth/authSlice';
@@ -87,6 +88,11 @@ const Sidebar = ({ isOpen = false, onClose = () => { }, isCollapsed = false, onT
         name: 'Candidates',
         icon: <Users size={18} />,
         path: '/candidates',
+      },
+      {
+        name: 'Hospital Join Requests',
+        icon: <Building2 size={18} />,
+        path: '/hospital-join-requests',
       },
     ],
     [organizationsCount]

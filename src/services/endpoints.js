@@ -49,5 +49,10 @@ export const API_ENDPOINTS = {
     ALL: '/admin/entities/all',
     BASE: '/admin/entities',
     DETAIL: (id) => `/admin/entities/${id}`,
-  }
+  },
+  HOSPITAL_JOIN_REQUESTS: {
+    LIST: '/admin/access-requests',
+    STATS: '/admin/hospital-join-requests/stats',
+    DETAIL: (id) => `/admin/hospital-join-requests/${id}`,
+  },
 };

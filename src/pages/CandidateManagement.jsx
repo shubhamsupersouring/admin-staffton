@@ -19,18 +19,8 @@ import { entityService } from '../services/entity.service';
 import toast from 'react-hot-toast';
 import { OrganizationListSkeleton } from '../components/Skeleton';
 import Pagination from '../components/Pagination/Pagination';
+import {formatRole} from "../utils/formatRole"
 
-const formatRole = (role) => {
-  if (!role) return 'Not Set';
-  const roleLower = role.toLowerCase();
-  if (roleLower === 'non_clinical') return 'Non-Clinical';
-  if (roleLower === 'doctor') return 'Doctor';
-  if (roleLower === 'nurse') return 'Nurse';
-  if (roleLower === 'clinical') return 'Clinical';
-  return role
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-};
 
 const CandidateManagement = () => {
   const navigate = useNavigate();
@@ -289,9 +279,9 @@ const CandidateManagement = () => {
                   <td>{c.years_experience ? `${c.years_experience} Years` : 'N/A'}</td>
                   <td>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
-                      <span className={`${styles.badge} ${c.has_applied ? styles.badgeApplied : styles.badgeNotApplied}`}>
+                      {/* <span className={`${styles.badge} ${c.has_applied ? styles.badgeApplied : styles.badgeNotApplied}`}>
                         {c.has_applied ? 'Applied' : 'No Application'}
-                      </span>
+                      </span> */}
                       <span className={`${styles.badge} ${c.is_active !== false ? styles.badgeActive : styles.badgeInactive}`}>
                         {c.is_active !== false ? 'Active' : 'Inactive'}
                       </span>

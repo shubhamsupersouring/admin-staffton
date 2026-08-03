@@ -1086,3 +1086,39 @@
   color: #059669;
   border: 1px solid #a7f3d0;
 }
+
+.statusBadge.declined,
+.statusBadge.rejected {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.offerFileLink {
+  display: block;
+  text-decoration: none;
+  margin-top: 4px;
+}
+
+.offerFileRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #e6fffa;
+  border: 1px solid #b2f5ea;
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: background-color 0.15s ease;
+}
+
+.offerFileLink:hover .offerFileRow {
+  background-color: #ccfbf1;
+}
+
+.offerFileName {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f766e;
+  word-break: break-word;
+}
