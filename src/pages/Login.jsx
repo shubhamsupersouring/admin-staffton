@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { adminLogin, clearError } from '../features/auth/authSlice';
+import { getDefaultRouteForRole, getUserRole } from '../utils/permission';
 import { toast } from 'react-hot-toast';
 import { ArrowRight } from 'lucide-react';
 import styles from './Login.module.css';
@@ -18,14 +19,14 @@ function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+  const { loading, error, isAuthenticated, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {
       toast.success('Successfully logged in!');
-      navigate('/');
+      navigate(getDefaultRouteForRole(getUserRole(user)));
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
   useEffect(() => {
     if (error) {

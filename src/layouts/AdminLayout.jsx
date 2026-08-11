@@ -4,19 +4,9 @@ import Sidebar from '../components/Sidebar/Sidebar';
 import Header from '../components/Header/Header';
 import { BreadcrumbDetailContext } from '../contexts/BreadcrumbDetailContext';
 import styles from './AdminLayout.module.css';
+import { ROUTE_LABELS } from '../utils/permission';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-const ROUTE_LABELS = {
-  'hospital-join-requests': 'Hospital Join Requests',
-  organizations: 'Organizations',
-  candidates: 'Candidates',
-  jobs: 'Jobs',
-  settings: 'Settings & Profile',
-  pipeline: 'Pipeline',
-  entities: 'Entities',
-  users: 'Users',
-};
 
 const formatSegmentLabel = (segment) => {
   if (ROUTE_LABELS[segment]) return ROUTE_LABELS[segment];

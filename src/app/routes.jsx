@@ -15,19 +15,24 @@ import UserManagement from '../pages/UserManagement';
 import CandidateManagement from '../pages/CandidateManagement';
 import CandidateDetail from '../pages/Candidate-Detail';
 import HospitalJoinRequests from '../pages/HospitalJoinRequests';
+import SeoPages from '../pages/SeoPages';
+import SeoMetadata from '../pages/SeoMetadata';
 import NotFound from '../pages/NotFound';
 
 // Organization Jobs
 import PostJobWizard from '../features/organization/jobs/PostJobWizard';
 
 import ProtectedRoute from '../components/ProtectedRoute';
+import RoleGuard from '../components/RoleGuard';
 
 export const routes = [
   {
     path: '/',
     element: (
       <ProtectedRoute>
-        <AdminLayout />
+        <RoleGuard>
+          <AdminLayout />
+        </RoleGuard>
       </ProtectedRoute>
     ),
     children: [
@@ -44,6 +49,8 @@ export const routes = [
       { path: 'candidates', element: <CandidateManagement /> },
       { path: 'candidates/:id', element: <CandidateDetail /> },
       { path: 'hospital-join-requests', element: <HospitalJoinRequests /> },
+      { path: 'seo/pages', element: <SeoPages /> },
+      { path: 'seo/metadata', element: <SeoMetadata /> },
       { path: 'admins', element: <Navigate to="/settings" replace /> },
       { path: '*', element: <NotFound /> },
     ],
